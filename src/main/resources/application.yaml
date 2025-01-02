@@ -1,0 +1,19 @@
+
+spring:
+  application:
+    name: "FruitShop"
+  datasource:
+    url: "jdbc:mysql://localhost:3306/fruit_shop?allowPublicKeyRetrieval=true&useSSL=false"
+    username: root
+    password:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+server:
+  port: 8888
+
+jwt:
+  signerKey: "tpuZpfE3OR658a//S9cp9TKhlea2xJmtxkqRLG6NOYUI7iib4UCU1YoGfaX3FB1e"
+  valid-duration: 3600 #second
+  refreshable-duration: 360000 #seconds
