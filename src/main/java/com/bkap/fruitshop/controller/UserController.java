@@ -32,11 +32,10 @@ public class UserController {
     @PostMapping
     public ApiResponse<UserResponse> save(@RequestBody UserRequest request){
         try {
-            UserResponse savedUser = userService.save(request);
             return ApiResponse.<UserResponse>builder()
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
-                    .result(savedUser)
+                    .result(userService.save(request))
                     .build();
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
@@ -73,11 +72,10 @@ public class UserController {
     @PutMapping("/{id}")
     public ApiResponse<UserResponse> update(@PathVariable Long id, @RequestBody UserRequest request){
         try {
-            UserResponse updatedUser = userService.updateUser(id, request);
             return ApiResponse.<UserResponse>builder()
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
-                    .result(updatedUser)
+                    .result(userService.updateUser(id, request))
                     .build();
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());

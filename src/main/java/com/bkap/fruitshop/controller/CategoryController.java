@@ -32,11 +32,10 @@ public class CategoryController {
     @PostMapping
     public ApiResponse<CategoryResponse> create(@RequestBody CategoryRequest request){
         try {
-            CategoryResponse categoryResponse = categoryService.save(request);
             return ApiResponse.<CategoryResponse>builder()
                     .code(HttpStatus.CREATED.value())
                     .message(HttpStatus.CREATED.getReasonPhrase())
-                    .result(categoryResponse)
+                    .result(categoryService.save(request))
                     .build();
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
@@ -46,12 +45,11 @@ public class CategoryController {
 
     @GetMapping("/{id}")
     public ApiResponse<CategoryResponse> findById(@PathVariable long id){
-        CategoryResponse categoryResponse = categoryService.findById(id);
         try {
             return ApiResponse.<CategoryResponse>builder()
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
-                    .result(categoryResponse)
+                    .result(categoryService.findById(id))
                     .build();
         }catch (Exception e){
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
@@ -60,22 +58,20 @@ public class CategoryController {
 
     @GetMapping("/search/{name}")
     public ApiResponse<List<CategoryResponse>> findByName(@PathVariable String name){
-        List<CategoryResponse> categoryResponses = categoryService.findByName(name);
         return ApiResponse.<List<CategoryResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(categoryResponses)
+                .result(categoryService.findByName(name))
                 .build();
     }
 
     @PutMapping("/{id}")
     public ApiResponse<CategoryResponse> update(@PathVariable long id, @RequestBody CategoryRequest request){
         try {
-            CategoryResponse categoryResponse = categoryService.update(id, request);
             return ApiResponse.<CategoryResponse>builder()
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
-                    .result(categoryResponse)
+                    .result(categoryService.update(id, request))
                     .build();
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());

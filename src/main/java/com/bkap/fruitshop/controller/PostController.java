@@ -19,22 +19,20 @@ public class PostController {
 
     @GetMapping
     public ApiResponse<List<PostResponse>> getAllPosts() {
-        List<PostResponse> posts = postService.findAll();
         return ApiResponse.<List<PostResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(posts)
+                .result(postService.findAll())
                 .build();
     }
 
     @PostMapping
     public ApiResponse<PostResponse> createPost(@ModelAttribute PostRequest request){
         try {
-            PostResponse response = postService.create(request);
             return ApiResponse.<PostResponse>builder()
                     .code(HttpStatus.CREATED.value())
                     .message(HttpStatus.CREATED.getReasonPhrase())
-                    .result(response)
+                    .result(postService.create(request))
                     .build();
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
@@ -44,11 +42,10 @@ public class PostController {
     @GetMapping("/{id}")
     public ApiResponse<PostResponse> getPostById(@PathVariable Long id){
         try {
-            PostResponse response = postService.findById(id);
             return ApiResponse.<PostResponse>builder()
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
-                    .result(response)
+                    .result(postService.findById(id))
                     .build();
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
@@ -57,22 +54,20 @@ public class PostController {
 
     @PutMapping("/{id}")
     public ApiResponse<PostResponse> updatePost(@PathVariable Long id, @ModelAttribute PostRequest request){
-        PostResponse response = postService.update(id, request);
         return ApiResponse.<PostResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(response)
+                .result(postService.update(id, request))
                 .build();
 
     }
 
     @GetMapping("/search/{title}")
     public ApiResponse<List<PostResponse>> getPostsByTitle(@PathVariable String title){
-        List<PostResponse> posts = postService.findByTitle(title);
         return ApiResponse.<List<PostResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(posts)
+                .result(postService.findByTitle(title))
                 .build();
     }
 

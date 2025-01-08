@@ -42,11 +42,10 @@ public class PostCategoryController {
     @GetMapping("/{id}")
     public ApiResponse<PostCategoryResponse> getPostCategoryById(@PathVariable Long id) {
         try {
-            PostCategoryResponse response = postCategoryService.findById(id);
             return ApiResponse.<PostCategoryResponse>builder()
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
-                    .result(response)
+                    .result(postCategoryService.findById(id))
                     .build();
         }catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());

@@ -20,12 +20,10 @@ public class ProductController {
     @PostMapping
     public ApiResponse<ProductResponse> createProduct(@ModelAttribute ProductRequest request){
         try {
-            ProductResponse productResponse = productService.createProduct(request);
-
             return ApiResponse.<ProductResponse>builder()
                     .code(HttpStatus.CREATED.value())
                     .message(HttpStatus.CREATED.getReasonPhrase())
-                    .result(productResponse)
+                    .result(productService.createProduct(request))
                     .build();
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
@@ -34,22 +32,20 @@ public class ProductController {
 
     @GetMapping
     public ApiResponse<List<ProductResponse>> findAllProducts(){
-        List<ProductResponse> products = productService.getAllProducts();
         return ApiResponse.<List<ProductResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(products)
+                .result(productService.getAllProducts())
                 .build();
     }
 
     @GetMapping("/{id}")
     public ApiResponse<ProductResponse> getProductById(@PathVariable long id){
         try {
-            ProductResponse product = productService.getProductById(id);
             return ApiResponse.<ProductResponse>builder()
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
-                    .result(product)
+                    .result(productService.getProductById(id))
                     .build();
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
@@ -59,11 +55,10 @@ public class ProductController {
     @GetMapping("/search/{name}")
     public ApiResponse<List<ProductResponse>> findProductByName(@PathVariable String name){
         try {
-            List<ProductResponse> productResponses = productService.findByProductName(name);
             return ApiResponse.<List<ProductResponse>>builder()
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
-                    .result(productResponses)
+                    .result(productService.findByProductName(name))
                     .build();
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
@@ -72,11 +67,10 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ApiResponse<ProductResponse> updateProduct(@PathVariable long id, @ModelAttribute ProductRequest request){
-        ProductResponse updateProduct = productService.updateProduct(id, request);
         return ApiResponse.<ProductResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(updateProduct)
+                .result(productService.updateProduct(id, request))
                 .build();
     }
 

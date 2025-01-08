@@ -21,7 +21,6 @@ import java.util.List;
 public class CartController {
 
     private final CartItemService cartItemService;
-    private final ModelMapper modelMapper;
     private final ProductRepository productRepository;
 
     @GetMapping("/total-price")

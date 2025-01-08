@@ -19,25 +19,19 @@ public class WishlistController {
 
     @GetMapping("/{userId}")
     public ApiResponse<List<WishlistResponse>> getWishlistsByUserId(@PathVariable("userId") long userId) {
-
-        List<WishlistResponse> responses = wishlistService.findWishlistsByUserId(userId);
-
-
         return ApiResponse.<List<WishlistResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(responses)
+                .result(wishlistService.findWishlistsByUserId(userId))
                 .build();
     }
 
     @PostMapping
     public ApiResponse<WishlistResponse> create(@RequestBody WishlistRequest request) {
-        WishlistResponse response = wishlistService.save(request);
-
         return ApiResponse.<WishlistResponse>builder()
                 .code(HttpStatus.CREATED.value())
                 .message(HttpStatus.CREATED.getReasonPhrase())
-                .result(response)
+                .result(wishlistService.save(request))
                 .build();
     }
 
