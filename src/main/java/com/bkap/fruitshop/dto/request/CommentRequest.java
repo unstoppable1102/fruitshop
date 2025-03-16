@@ -12,12 +12,11 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentRequest implements Serializable {
-
-    private long parentId; // ID của comment cha (nếu là comment con)
-
     private long postId; // ID của bài viết mà comment thuộc về
 
-    private long userId; // ID của người dùng tạo comment
+    private Long userId; // ID của người dùng tạo comment
+
+    private Long parentCommentId; // ID của comment cha (nếu là comment con)
 
     private String content; // Nội dung của comment
 

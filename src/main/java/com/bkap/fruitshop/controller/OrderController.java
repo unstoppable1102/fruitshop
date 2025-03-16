@@ -27,29 +27,41 @@ public class OrderController {
     }
 
     @PostMapping
-    public ApiResponse<OrderResponse> createUserOrder(@RequestParam long userId, @RequestBody OrderRequest request) {
-        return ApiResponse.<OrderResponse>builder()
-                .code(HttpStatus.CREATED.value())
-                .message(HttpStatus.CREATED.getReasonPhrase())
-                .result(orderService.createOrder(userId, request))
-                .build();
+    public ApiResponse<OrderResponse> createUserOrder(@RequestBody OrderRequest request) {
+        try {
+            return ApiResponse.<OrderResponse>builder()
+                    .code(HttpStatus.CREATED.value())
+                    .message(HttpStatus.CREATED.getReasonPhrase())
+                    .result(orderService.createOrder(request))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @GetMapping("/{orderId}")
-    public ApiResponse<OrderResponse> getUserOrder(@PathVariable long orderId) {
-        return ApiResponse.<OrderResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message(HttpStatus.OK.getReasonPhrase())
-                .result(orderService.getOrderById(orderId))
-                .build();
+    public ApiResponse<OrderResponse> getOrderById(@PathVariable long orderId) {
+        try {
+            return ApiResponse.<OrderResponse>builder()
+                    .code(HttpStatus.OK.value())
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .result(orderService.getOrderById(orderId))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @PatchMapping("/{orderId}/status")
     public ApiResponse<OrderResponse> updateUserOrder(@PathVariable long orderId, @RequestParam String status) {
-        return ApiResponse.<OrderResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message(HttpStatus.OK.getReasonPhrase())
-                .result(orderService.updateOrderStatus(orderId, status))
-                .build();
+        try {
+            return ApiResponse.<OrderResponse>builder()
+                    .code(HttpStatus.OK.value())
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .result(orderService.updateOrderStatus(orderId, status))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 }

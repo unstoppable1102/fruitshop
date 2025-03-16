@@ -1,20 +1,18 @@
 package com.bkap.fruitshop.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @AllArgsConstructor
 @Setter
 @NoArgsConstructor
+@Builder
 public class CommentResponse {
     private Long id; // ID của comment
 
-    private Long parentId; // ID của comment cha (nếu có)
+    private Long parentCommentId; // ID của comment cha (nếu có)
 
-    private Long postId; // ID của bài viết mà comment thuộc về
+    private long postId; // ID của bài viết mà comment thuộc về
 
     private String content; // Nội dung của comment
 

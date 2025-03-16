@@ -6,6 +6,12 @@ spring:
     url: "jdbc:mysql://localhost:3306/fruit_shop?allowPublicKeyRetrieval=true&useSSL=false"
     username: root
     password:
+    hikari:
+      maximum-pool-size: 10
+      minimumIdle: 5
+      idleTimeout: 30000
+      keepaliveTime: 30000
+      leakDetectionThreshold=: 5000
   jpa:
     show-sql: true
     hibernate:

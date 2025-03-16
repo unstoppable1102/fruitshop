@@ -1,21 +1,30 @@
 package com.bkap.fruitshop.dto.response;
 
+import com.bkap.fruitshop.common.util.EOrderStatus;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Getter
-@AllArgsConstructor
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor
 public class OrderResponse {
 
-    private Long id;
-    private String status;
+    private Long orderId;
+    private Long userId;
+    private EOrderStatus orderStatus;
     private List<OrderItemResponse> items;
-    private LocalDateTime orderDate;
+    private double total;
+    private Date orderDate;
+    private String shippingAddress;
+    private Date shippingDate;
 }
+

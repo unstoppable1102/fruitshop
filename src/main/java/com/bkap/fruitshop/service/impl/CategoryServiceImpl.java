@@ -62,7 +62,6 @@ public class CategoryServiceImpl implements CategoryService {
         if (existsProduct) {
             throw new AppException(ErrorCode.PRODUCT_EXIST_IN_CATEGORY);
         }
-
         categoryRepository.deleteById(id);
     }
 

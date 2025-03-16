@@ -1,13 +1,12 @@
 package com.bkap.fruitshop.controller;
 
-import com.bkap.fruitshop.dto.request.IntrospectRequest;
-import com.bkap.fruitshop.dto.request.LoginRequest;
-import com.bkap.fruitshop.dto.request.LogoutRequest;
-import com.bkap.fruitshop.dto.request.RefreshRequest;
+import com.bkap.fruitshop.dto.request.*;
 import com.bkap.fruitshop.dto.response.ApiResponse;
 import com.bkap.fruitshop.dto.response.AuthenticationResponse;
 import com.bkap.fruitshop.dto.response.IntrospectResponse;
+import com.bkap.fruitshop.dto.response.UserResponse;
 import com.bkap.fruitshop.service.AuthenticationService;
+import com.bkap.fruitshop.service.UserService;
 import com.nimbusds.jose.JOSEException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +25,7 @@ import java.text.ParseException;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     @PostMapping("/login")
     ApiResponse<AuthenticationResponse> login (@RequestBody LoginRequest request) {
@@ -35,6 +35,19 @@ public class AuthenticationController {
                     .result(result)
                     .build();
         } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
+    }
+
+    @PostMapping("/register")
+    public ApiResponse<UserResponse> register(@RequestBody UserRequest request) {
+        try {
+            return ApiResponse.<UserResponse>builder()
+                    .code(HttpStatus.CREATED.value())
+                    .message(HttpStatus.CREATED.getReasonPhrase())
+                    .result(userService.save(request))
+                    .build();
+        }catch (Exception e){
             return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         }
     }

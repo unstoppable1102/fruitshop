@@ -9,7 +9,6 @@ import com.bkap.fruitshop.exception.ErrorCode;
 import com.bkap.fruitshop.repository.ProductRepository;
 import com.bkap.fruitshop.service.CartItemService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

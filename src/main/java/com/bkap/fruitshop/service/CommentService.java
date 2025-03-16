@@ -13,5 +13,6 @@ public interface CommentService {
     CommentResponse update(long id, CommentRequest request);
     void delete(long id);
     List<CommentResponse> findAllCommentsByPostId(long postId);
+    List<CommentResponse> findAllCommentsByUserIdAndPostId(Long userId, long postId);
     long countCommentsByPostId(long postId);
 }

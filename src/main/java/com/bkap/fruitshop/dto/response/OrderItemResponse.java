@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class OrderItemResponse {
 
-    private Long productId;
+    private long productId;
     private String productName;
     private int quantity;
     private double price;

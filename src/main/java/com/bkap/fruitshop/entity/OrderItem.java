@@ -19,12 +19,12 @@ public class OrderItem extends BaseModel{
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id", updatable = false, insertable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "order_id", referencedColumnName = "id")
     private Order order;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="product_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name="product_id", referencedColumnName = "id")
     private Product product;
 
     private int quantity;
