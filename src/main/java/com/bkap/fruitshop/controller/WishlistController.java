@@ -19,20 +19,28 @@ public class WishlistController {
 
     @GetMapping("/{userId}")
     public ApiResponse<List<WishlistResponse>> getWishlistsByUserId(@PathVariable("userId") long userId) {
-        return ApiResponse.<List<WishlistResponse>>builder()
-                .code(HttpStatus.OK.value())
-                .message(HttpStatus.OK.getReasonPhrase())
-                .result(wishlistService.findWishlistsByUserId(userId))
-                .build();
+        try {
+            return ApiResponse.<List<WishlistResponse>>builder()
+                    .code(HttpStatus.OK.value())
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .result(wishlistService.findWishlistsByUserId(userId))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @PostMapping
     public ApiResponse<WishlistResponse> create(@RequestBody WishlistRequest request) {
-        return ApiResponse.<WishlistResponse>builder()
-                .code(HttpStatus.CREATED.value())
-                .message(HttpStatus.CREATED.getReasonPhrase())
-                .result(wishlistService.save(request))
-                .build();
+        try {
+            return ApiResponse.<WishlistResponse>builder()
+                    .code(HttpStatus.CREATED.value())
+                    .message(HttpStatus.CREATED.getReasonPhrase())
+                    .result(wishlistService.save(request))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @DeleteMapping("/remove/{id}")

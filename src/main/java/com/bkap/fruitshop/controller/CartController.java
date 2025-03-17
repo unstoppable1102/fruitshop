@@ -1,13 +1,10 @@
 package com.bkap.fruitshop.controller;
 
-import com.bkap.fruitshop.dto.request.CartItemRequest;
+import com.bkap.fruitshop.dto.request.CartRequest;
 import com.bkap.fruitshop.dto.response.ApiResponse;
 import com.bkap.fruitshop.dto.response.CartItemResponse;
-import com.bkap.fruitshop.entity.Product;
-import com.bkap.fruitshop.exception.AppException;
-import com.bkap.fruitshop.exception.ErrorCode;
-import com.bkap.fruitshop.repository.ProductRepository;
-import com.bkap.fruitshop.service.CartItemService;
+import com.bkap.fruitshop.dto.response.CartResponse;
+import com.bkap.fruitshop.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,55 +16,66 @@ import java.util.List;
 @RequestMapping("/api/v1/carts")
 public class CartController {
 
-    private final CartItemService cartItemService;
-    private final ProductRepository productRepository;
+    private final CartService cartService;
 
     @GetMapping("/total-price")
-    public Double getTotalPrice(@RequestParam("userId") long userId) {
-        return cartItemService.calculateTotalPrice(userId);
+    public ApiResponse<Double> getTotalPrice(@RequestParam("userId") long userId) {
+        return ApiResponse.<Double>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(cartService.getTotalPrice(userId))
+                .build();
     }
 
     @GetMapping("/count-cart-item")
-    public long countCartItem(@RequestParam("userId") long userId) {
-        return cartItemService.countItemsInCart(userId);
-    }
-
-    @GetMapping("/{userId}")
-    public ApiResponse<List<CartItemResponse>> getCartByUserId(@PathVariable long userId) {
-        return ApiResponse.<List<CartItemResponse>>builder()
+    public ApiResponse<Integer> countCartItem(@RequestParam("userId") long userId) {
+        return ApiResponse.<Integer>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(cartItemService.findByUserId(userId))
+                .result(cartService.countCartItem(userId))
+                .build();
+    }
+
+    @GetMapping("/{cartId}")
+    public ApiResponse<CartResponse> getCartById(@PathVariable long cartId) {
+        return ApiResponse.<CartResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(cartService.getCartById(cartId))
+                .build();
+    }
+
+    @GetMapping("/user/{userId}")
+    public ApiResponse<List<CartResponse>> getCartByUserId(@PathVariable long userId) {
+        return ApiResponse.<List<CartResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(cartService.getCartsByUserId(userId))
                 .build();
     }
 
     @PostMapping
-    public ApiResponse<CartItemResponse> addToCart(@RequestBody CartItemRequest request) {
-        Product p = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        CartItemResponse addCartItem = cartItemService.addCartItem(request);
-        addCartItem.setPrice(p.getPrice());
+    public ApiResponse<CartResponse> addToCart(@RequestBody CartRequest request) {
 
-        return ApiResponse.<CartItemResponse>builder()
+        return ApiResponse.<CartResponse>builder()
                 .code(HttpStatus.CREATED.value())
                 .message(HttpStatus.CREATED.getReasonPhrase())
-                .result(addCartItem)
+                .result(cartService.addToCart(request))
                 .build();
     }
 
-    @DeleteMapping("/remove/{cartItemId}")
-    public ApiResponse<CartItemResponse> removeFromCart(@PathVariable long cartItemId) {
-        cartItemService.removeCartItem(cartItemId);
-
+    @DeleteMapping("/remove")
+    public ApiResponse<CartItemResponse> removeFromCart(@RequestParam Long userId, @RequestParam Long productId) {
+        cartService.removeFromCart(userId, productId);
         return ApiResponse.<CartItemResponse>builder()
                 .code(HttpStatus.NO_CONTENT.value())
                 .message("Cart item is removed successfully!")
                 .build();
     }
 
-    @DeleteMapping("/clear/{userId}")
-    public ApiResponse<Void> clearCart(@PathVariable long userId) {
-        cartItemService.clearCart(userId);
+    @DeleteMapping("/clear")
+    public ApiResponse<Void> clearCart(@RequestParam long userId) {
+        cartService.clearCart(userId);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.NO_CONTENT.value())
                 .message("Cart is deleted successfully!")

@@ -29,9 +29,7 @@ public class WishlistServiceImpl implements WishlistService {
 
     @Override
     public List<WishlistResponse> findWishlistsByUserId(long userId) {
-        List<Wishlist> wishlists = wishlistRepository.findWishlistsByUserId(userId);
-
-        return wishlists.stream()
+        return wishlistRepository.findWishlistsByUserId(userId).stream()
                 .map((element) -> modelMapper.map(element, WishlistResponse.class))
                 .collect(Collectors.toList());
     }
@@ -47,7 +45,7 @@ public class WishlistServiceImpl implements WishlistService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
 
-        Wishlist exists = wishlistRepository.findByUserIdAndProductId(request.getUserId(), product.getId());
+        Wishlist exists = wishlistRepository.findByUserIdAndProductId(request.getUserId(), request.getProductId());
         if (exists != null) {
             return modelMapper.map(exists, WishlistResponse.class);
 
@@ -63,6 +61,9 @@ public class WishlistServiceImpl implements WishlistService {
 
     @Override
     public void delete(long id) {
+        if (!wishlistRepository.existsById(id)) {
+            throw new AppException(ErrorCode.WISHLIST_NOT_FOUND);
+        }
         wishlistRepository.deleteById(id);
     }
 }

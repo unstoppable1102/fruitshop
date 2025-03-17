@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class CartItemResponse {
 
-    private Long productId;
+    private long productId;
     private String productName;
     private int quantity;
     private double price;

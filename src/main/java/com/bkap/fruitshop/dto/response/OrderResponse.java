@@ -1,14 +1,11 @@
 package com.bkap.fruitshop.dto.response;
 
 import com.bkap.fruitshop.common.util.EOrderStatus;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
