@@ -29,6 +29,7 @@ public class Order extends BaseModel{
     private Date orderDate;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", nullable = false)
     private EOrderStatus orderStatus;
 
     private String shippingAddress;

@@ -35,6 +35,8 @@ public enum ErrorCode {
     TOKEN_REQUIRED(1024, "Token must be not blank", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(1025, "Token is invalid", HttpStatus.BAD_REQUEST),
     INVALID_PRODUCT_PRICE(1026, "Product price is invalid", HttpStatus.BAD_REQUEST),
+    INVALID_ORDER_STATUS(1027, "Order status is invalid", HttpStatus.BAD_REQUEST),
+    ORDER_CANNOT_BE_UPDATED(1028, "Order status can not be updated", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

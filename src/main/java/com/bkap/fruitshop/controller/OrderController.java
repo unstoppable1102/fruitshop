@@ -57,7 +57,7 @@ public class OrderController {
     }
 
     @PatchMapping("/{orderId}/status")
-    public ApiResponse<OrderResponse> updateUserOrder(@PathVariable long orderId, @RequestParam String status) {
+    public ApiResponse<OrderResponse> updateOrderStatus(@PathVariable long orderId, @RequestParam String status) {
         try {
             return ApiResponse.<OrderResponse>builder()
                     .code(HttpStatus.OK.value())

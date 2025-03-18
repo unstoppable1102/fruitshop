@@ -53,7 +53,7 @@ public class CartServiceImpl implements CartService {
             CartItem cartItem = cartItemRepository.findByCartAndProduct(cart, product)
                     .orElseGet(() -> {
                         CartItem newCartItem = new CartItem(cart, product, 0);
-                        cartItems.add(newCartItem);
+                        cartItemRepository.save(newCartItem);
                         return newCartItem;
                     });
             cartItem.setQuantity(cartItem.getQuantity() + itemRequest.getQuantity());
@@ -74,12 +74,9 @@ public class CartServiceImpl implements CartService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        List<Cart> carts = cartRepository.findByUserId(userId)
-                .map(Collections::singletonList)
-                .orElseGet(Collections::emptyList);
-
-        return carts.stream().map(this::convertToCartResponse)
-                .collect(Collectors.toList());
+        return cartRepository.findByUserId(userId)
+                .map(cart -> Collections.singletonList(convertToCartResponse(cart)))
+                .orElse(Collections.emptyList());
     }
 
     @Override
@@ -102,6 +99,12 @@ public class CartServiceImpl implements CartService {
 
         cart.getCartItems().remove(cartItem);
         cartItemRepository.delete(cartItem);
+
+        double totalPrice = cart.getCartItems().stream()
+                .mapToDouble(item -> item.getQuantity() * item.getProduct().getPrice())
+                .sum();
+        cart.setTotal(totalPrice);
+        cartRepository.save(cart);
     }
 
     @Override
@@ -111,12 +114,15 @@ public class CartServiceImpl implements CartService {
 
         cartItemRepository.deleteAll(cart.getCartItems());
         cart.getCartItems().clear();
+        cart.setTotal(0.0);
         cartRepository.save(cart);
     }
 
     @Override
     public int countCartItem(Long userId) {
-        return cartItemRepository.countByCartUserId(userId);
+        return cartRepository.findByUserId(userId)
+                .map(cart -> cartItemRepository.countByCartUserId(userId))
+                .orElse(0);
     }
 
     @Override
@@ -134,20 +140,15 @@ public class CartServiceImpl implements CartService {
 
         List<CartItemResponse> items = cart.getCartItems().stream()
                 .map(item ->{
-                    CartItemResponse itemResponse = new CartItemResponse();
-                    itemResponse.setProductId(item.getProduct().getId());
-                    itemResponse.setProductName(item.getProduct().getProductName());
-                    itemResponse.setQuantity(item.getQuantity());
-                    itemResponse.setPrice(item.getProduct().getPrice()); // Cập nhật giá từng sản phẩm
-                    return itemResponse;
+                        CartItemResponse itemResponse = new CartItemResponse();
+                        itemResponse.setProductId(item.getProduct().getId());
+                        itemResponse.setProductName(item.getProduct().getProductName());
+                        itemResponse.setQuantity(item.getQuantity());
+                        itemResponse.setPrice(item.getProduct().getPrice()); // Cập nhật giá từng sản phẩm
+                        return itemResponse;
                 }).toList();
         response.setItems(items);
         response.setTotal(cart.getTotal());
         return response;
     }
-
-    private CartItemResponse convertToCartItemResponse(CartItem cartItem) {
-        return modelMapper.map(cartItem, CartItemResponse.class);
-    }
-
 }

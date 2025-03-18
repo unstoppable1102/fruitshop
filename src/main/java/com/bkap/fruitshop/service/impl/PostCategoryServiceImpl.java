@@ -63,10 +63,12 @@ public class PostCategoryServiceImpl implements PostCategoryService {
 
     @Override
     public void delete(long id) {
-        boolean exists = postCategoryRepository.existsById(id);
-        if (!exists) {
-            throw new AppException(ErrorCode.POST_CATEGORY_NOT_FOUND);
+        PostCategory postCategory = postCategoryRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_CATEGORY_NOT_FOUND));
+        boolean existsPost = postRepository.existsByPostCategoryId(id);
+        if (existsPost) {
+            throw new AppException(ErrorCode.POST_EXIST_IN_POST_CATEGORY);
         }
-        postCategoryRepository.deleteById(id);
+        postCategoryRepository.delete(postCategory);
     }
 }

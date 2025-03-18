@@ -90,14 +90,25 @@ public class OrderServiceImpl implements OrderService {
         return modelMapper.map(order, OrderResponse.class);
     }
 
-
     @Override
     public OrderResponse updateOrderStatus(Long orderId, String status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         var orderStatus = EOrderStatus.fromString(status);
+        if (!isValidStatusTransaction(order.getOrderStatus(), orderStatus)){
+            throw new AppException(ErrorCode.INVALID_ORDER_STATUS);
+        }
         order.setOrderStatus(orderStatus);
         return modelMapper.map(orderRepository.save(order), OrderResponse.class);
+    }
+
+    private boolean isValidStatusTransaction(EOrderStatus current, EOrderStatus next) {
+        return switch (current){
+            case NEW -> next == EOrderStatus.PROCESSING;
+            case PROCESSING -> next == EOrderStatus.SHIPPING || next == EOrderStatus.CANCELED;
+            case SHIPPING -> next == EOrderStatus.DELIVERED || next == EOrderStatus.CANCELED;
+            case DELIVERED, CANCELED -> false;
+        };
     }
 }

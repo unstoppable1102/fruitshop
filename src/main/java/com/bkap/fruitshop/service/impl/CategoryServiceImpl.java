@@ -58,11 +58,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
+
         boolean existsProduct = productRepository.existsByCategoryId(id);
         if (existsProduct) {
             throw new AppException(ErrorCode.PRODUCT_EXIST_IN_CATEGORY);
         }
-        categoryRepository.deleteById(id);
+        categoryRepository.delete(category);
     }
 
     @Override

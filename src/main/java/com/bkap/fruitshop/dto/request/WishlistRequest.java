@@ -12,5 +12,4 @@ import lombok.Setter;
 public class WishlistRequest {
     private long productId;
     private long userId;
-
 }
