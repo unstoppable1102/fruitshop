@@ -21,11 +21,10 @@ public class CategoryController {
 
     @GetMapping
     public ApiResponse<List<CategoryResponse>> findAll(){
-        List<CategoryResponse> categoryResponses = categoryService.findAll();
         return ApiResponse.<List<CategoryResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(categoryResponses)
+                .result(categoryService.findAll())
                 .build();
     }
 

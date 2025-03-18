@@ -19,11 +19,15 @@ public class OrderController {
 
     @GetMapping
     public ApiResponse<List<OrderResponse>> getUserOrders(@RequestParam long userId) {
-        return ApiResponse.<List<OrderResponse>>builder()
-                .code(HttpStatus.OK.value())
-                .message(HttpStatus.OK.getReasonPhrase())
-                .result(orderService.getOrdersByUserId(userId))
-                .build();
+        try {
+            return ApiResponse.<List<OrderResponse>>builder()
+                    .code(HttpStatus.OK.value())
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .result(orderService.getOrdersByUserId(userId))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @PostMapping

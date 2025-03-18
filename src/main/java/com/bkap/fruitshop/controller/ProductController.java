@@ -67,11 +67,15 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ApiResponse<ProductResponse> updateProduct(@PathVariable long id, @ModelAttribute ProductRequest request){
-        return ApiResponse.<ProductResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message(HttpStatus.OK.getReasonPhrase())
-                .result(productService.updateProduct(id, request))
-                .build();
+        try {
+            return ApiResponse.<ProductResponse>builder()
+                    .code(HttpStatus.OK.value())
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .result(productService.updateProduct(id, request))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")

@@ -73,6 +73,7 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
 
         comment.setContent(request.getContent());
+        comment = commentRepository.save(comment);
 
         return mapToResponse(comment);
     }

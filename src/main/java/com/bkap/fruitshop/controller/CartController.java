@@ -38,48 +38,68 @@ public class CartController {
 
     @GetMapping("/{cartId}")
     public ApiResponse<CartResponse> getCartById(@PathVariable long cartId) {
-        return ApiResponse.<CartResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message(HttpStatus.OK.getReasonPhrase())
-                .result(cartService.getCartById(cartId))
-                .build();
+        try {
+            return ApiResponse.<CartResponse>builder()
+                    .code(HttpStatus.OK.value())
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .result(cartService.getCartById(cartId))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @GetMapping("/user/{userId}")
     public ApiResponse<List<CartResponse>> getCartByUserId(@PathVariable long userId) {
-        return ApiResponse.<List<CartResponse>>builder()
-                .code(HttpStatus.OK.value())
-                .message(HttpStatus.OK.getReasonPhrase())
-                .result(cartService.getCartsByUserId(userId))
-                .build();
+        try {
+            return ApiResponse.<List<CartResponse>>builder()
+                    .code(HttpStatus.OK.value())
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .result(cartService.getCartsByUserId(userId))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @PostMapping
     public ApiResponse<CartResponse> addToCart(@RequestBody CartRequest request) {
 
-        return ApiResponse.<CartResponse>builder()
-                .code(HttpStatus.CREATED.value())
-                .message(HttpStatus.CREATED.getReasonPhrase())
-                .result(cartService.addToCart(request))
-                .build();
+        try {
+            return ApiResponse.<CartResponse>builder()
+                    .code(HttpStatus.CREATED.value())
+                    .message(HttpStatus.CREATED.getReasonPhrase())
+                    .result(cartService.addToCart(request))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @DeleteMapping("/remove")
     public ApiResponse<CartItemResponse> removeFromCart(@RequestParam Long userId, @RequestParam Long productId) {
         cartService.removeFromCart(userId, productId);
-        return ApiResponse.<CartItemResponse>builder()
-                .code(HttpStatus.NO_CONTENT.value())
-                .message("Cart item is removed successfully!")
-                .build();
+        try {
+            return ApiResponse.<CartItemResponse>builder()
+                    .code(HttpStatus.NO_CONTENT.value())
+                    .message("Cart item is removed successfully!")
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @DeleteMapping("/clear")
     public ApiResponse<Void> clearCart(@RequestParam long userId) {
         cartService.clearCart(userId);
-        return ApiResponse.<Void>builder()
-                .code(HttpStatus.NO_CONTENT.value())
-                .message("Cart is deleted successfully!")
-                .build();
+        try {
+            return ApiResponse.<Void>builder()
+                    .code(HttpStatus.NO_CONTENT.value())
+                    .message("Cart is deleted successfully!")
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
 }

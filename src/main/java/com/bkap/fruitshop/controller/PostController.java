@@ -54,21 +54,29 @@ public class PostController {
 
     @PutMapping("/{id}")
     public ApiResponse<PostResponse> updatePost(@PathVariable Long id, @ModelAttribute PostRequest request){
-        return ApiResponse.<PostResponse>builder()
-                .code(HttpStatus.OK.value())
-                .message(HttpStatus.OK.getReasonPhrase())
-                .result(postService.update(id, request))
-                .build();
+        try {
+            return ApiResponse.<PostResponse>builder()
+                    .code(HttpStatus.OK.value())
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .result(postService.update(id, request))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
 
     }
 
     @GetMapping("/search/{title}")
     public ApiResponse<List<PostResponse>> getPostsByTitle(@PathVariable String title){
-        return ApiResponse.<List<PostResponse>>builder()
-                .code(HttpStatus.OK.value())
-                .message(HttpStatus.OK.getReasonPhrase())
-                .result(postService.findByTitle(title))
-                .build();
+        try {
+            return ApiResponse.<List<PostResponse>>builder()
+                    .code(HttpStatus.OK.value())
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .result(postService.findByTitle(title))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
