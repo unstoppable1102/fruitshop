@@ -71,8 +71,15 @@ public class ProductServiceImpl implements ProductService {
         //find product by id
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        modelMapper.map(request, product);
 
+        if (product.getProductName().equals(request.getProductName()) && productRepository.existsByProductName(request.getProductName())) {
+            throw new AppException(ErrorCode.PRODUCT_EXISTED);
+        }
+        product.setProductName(request.getProductName());
+        product.setPrice(request.getPrice());
+        product.setPriceOld(request.getPriceOld());
+        product.setQuantity(request.getQuantity());
+        product.setDescription(request.getDescription());
         product.setCategory(category);
 
         if (request.getImage() != null && !request.getImage().isEmpty()) {
@@ -87,6 +94,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(long id) {
+        if (!productRepository.existsById(id)) {
+            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
         productRepository.deleteById(id);
 
     }

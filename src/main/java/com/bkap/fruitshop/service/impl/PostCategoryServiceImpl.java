@@ -45,11 +45,17 @@ public class PostCategoryServiceImpl implements PostCategoryService {
 
     @Override
     public PostCategoryResponse create(PostCategoryRequest request) {
-        if (postCategoryRepository.existsByName(request.getName())) {
+        if (request.getName() == null || request.getName().trim().isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
+        }
+        String normalizedName = request.getName().trim().toLowerCase();
+        if (postCategoryRepository.existsByNameIgnoreCase(normalizedName)) {
             throw new AppException(ErrorCode.POST_CATEGORY_EXISTED);
         }
 
         PostCategory postCategory = modelMapper.map(request, PostCategory.class);
+        postCategory.setName(request.getName().trim());
+
         return modelMapper.map(postCategoryRepository.save(postCategory), PostCategoryResponse.class);
     }
 
@@ -57,7 +63,18 @@ public class PostCategoryServiceImpl implements PostCategoryService {
     public PostCategoryResponse update(long id, PostCategoryRequest request) {
         PostCategory existingPostCategory = postCategoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_CATEGORY_NOT_FOUND));
-        modelMapper.map(request, existingPostCategory);
+
+        String normalizedName = request.getName().trim().toLowerCase();
+
+        if (!existingPostCategory.getName().equalsIgnoreCase(normalizedName)
+                && postCategoryRepository.existsByNameIgnoreCase(normalizedName)) {
+            throw new AppException(ErrorCode.POST_CATEGORY_EXISTED);
+        }
+
+        // Cập nhật dữ liệu
+        existingPostCategory.setName(request.getName().trim());
+        existingPostCategory.setDescription(request.getDescription() != null ? request.getDescription().trim() : "");
+
         return modelMapper.map(postCategoryRepository.save(existingPostCategory), PostCategoryResponse.class);
     }
 

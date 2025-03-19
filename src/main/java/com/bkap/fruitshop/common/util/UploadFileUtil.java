@@ -1,5 +1,6 @@
 package com.bkap.fruitshop.common.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,13 +11,15 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Component
+@Slf4j
 public class UploadFileUtil {
+
+    private final Path uploadPath = Paths.get("src/main/resources/uploads");
 
     public String saveImage(MultipartFile imageFile) {
         String fileName = imageFile.getOriginalFilename();
 
         try{
-            Path uploadPath = Paths.get("src/main/resources/uploads");
             if (!Files.exists(uploadPath)) {
                 Files.createDirectory(uploadPath);
             }
@@ -28,5 +31,28 @@ public class UploadFileUtil {
             throw new RuntimeException("Fail to store file", e);
         }
 
+    }
+
+    public boolean deleteImage(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return false;
+        }
+        try {
+            Path filePath = uploadPath.resolve(fileName);
+            if (!Files.exists(filePath)) {
+                log.warn("Image file not found: {}", fileName);
+                return false;
+            }
+            boolean deleted = Files.deleteIfExists(filePath);
+            if (deleted) {
+                log.info("Successfully deleted image: {}", fileName);
+            } else {
+                log.warn("Failed to delete image: {}", fileName);
+            }
+            return deleted;
+        }catch (IOException e){
+            log.error("Fail to delete image: {}", fileName, e);
+            return false;
+        }
     }
 }

@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,9 +70,6 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public List<CartResponse> getCartsByUserId(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
         return cartRepository.findByUserId(userId)
                 .map(cart -> Collections.singletonList(convertToCartResponse(cart)))
                 .orElse(Collections.emptyList());

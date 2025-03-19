@@ -37,6 +37,9 @@ public enum ErrorCode {
     INVALID_PRODUCT_PRICE(1026, "Product price is invalid", HttpStatus.BAD_REQUEST),
     INVALID_ORDER_STATUS(1027, "Order status is invalid", HttpStatus.BAD_REQUEST),
     ORDER_CANNOT_BE_UPDATED(1028, "Order status can not be updated", HttpStatus.BAD_REQUEST),
+    INVALID_REQUEST(1029, "Request invalided", HttpStatus.BAD_REQUEST),
+    USER_EXIST_IN_ROLE(1030, "User exist in role, cannot be deleted", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_ADMIN(1030, "User has admin role, cannot be deleted", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

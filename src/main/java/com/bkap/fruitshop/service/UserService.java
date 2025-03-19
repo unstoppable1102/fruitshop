@@ -5,6 +5,7 @@ import com.bkap.fruitshop.dto.response.UserResponse;
 import com.bkap.fruitshop.entity.User;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserService {
 
@@ -15,5 +16,6 @@ public interface UserService {
      UserResponse updateUser(Long id, UserRequest userRequest);
      void deleteUser(Long id);
      User findByUsername(String username);
+     UserResponse updateUserRoles(Long userId, Set<String> roleNames);
 
 }

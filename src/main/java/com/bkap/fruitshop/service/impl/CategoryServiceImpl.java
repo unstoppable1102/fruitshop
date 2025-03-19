@@ -44,16 +44,20 @@ public class CategoryServiceImpl implements CategoryService {
             throw new AppException(ErrorCode.CATEGORY_EXISTED);
         }
         Category category = modelMapper.map(request, Category.class);
-        return modelMapper.map(categoryRepository.save(category), CategoryResponse.class);
+        category = categoryRepository.save(category);
+        return modelMapper.map(category, CategoryResponse.class);
     }
 
     @Override
     public CategoryResponse update(long id, CategoryRequest request) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
-        modelMapper.map(request, existingCategory);
-        Category updatedCategory = categoryRepository.save(existingCategory);
-        return modelMapper.map(updatedCategory, CategoryResponse.class);
+
+        if (!existingCategory.getName().equals(request.getName()) && categoryRepository.existsByName(request.getName())) {
+            throw new AppException(ErrorCode.CATEGORY_EXISTED);
+        }
+        existingCategory.setName(request.getName());
+        return modelMapper.map(categoryRepository.save(existingCategory), CategoryResponse.class);
     }
 
     @Override
@@ -61,8 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        boolean existsProduct = productRepository.existsByCategoryId(id);
-        if (existsProduct) {
+        if (!category.getProducts().isEmpty()){
             throw new AppException(ErrorCode.PRODUCT_EXIST_IN_CATEGORY);
         }
         categoryRepository.delete(category);

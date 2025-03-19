@@ -68,7 +68,7 @@ public class PostServiceImpl implements PostService {
         post.setPostCategory(postCategory);
 
         if (request.getImage() != null && !request.getImage().isEmpty()) {
-            //save iange into folder
+            //save image into folder
             String imagePath = uploadFileUtil.saveImage(request.getImage());
             post.setImage(imagePath);
         }
@@ -77,7 +77,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void delete(long id) {
-        postRepository.deleteById(id);
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+
+        if (post.getImage() != null && !post.getImage().isEmpty()) {
+            uploadFileUtil.deleteImage(post.getImage());
+        }
+        postRepository.delete(post);
     }
 
     @Override

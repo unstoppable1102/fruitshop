@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 
 @RestController
@@ -78,6 +79,19 @@ public class UserController {
                     .result(userService.updateUser(id, request))
                     .build();
         } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
+        }
+    }
+
+    @PutMapping("/{userId}/roles")
+    public ApiResponse<UserResponse> updateUserRoles(@PathVariable Long userId, @RequestBody Set<String> roleNames){
+        try {
+            return ApiResponse.<UserResponse>builder()
+                    .code(HttpStatus.OK.value())
+                    .message(HttpStatus.OK.getReasonPhrase())
+                    .result(userService.updateUserRoles(userId, roleNames))
+                    .build();
+        }catch (Exception e){
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
         }
     }

@@ -6,6 +6,7 @@ import com.bkap.fruitshop.entity.Role;
 import com.bkap.fruitshop.exception.AppException;
 import com.bkap.fruitshop.exception.ErrorCode;
 import com.bkap.fruitshop.repository.RoleRepository;
+import com.bkap.fruitshop.repository.UserRepository;
 import com.bkap.fruitshop.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
 
     @Override
     public List<RoleResponse> getAll() {
@@ -40,10 +42,12 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void delete(String role) {
-        Role existingRole = roleRepository.findByName(role)
+    public void delete(String roleName) {
+        Role existingRole = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-
+        if (userRepository.existsByRoles_Id(existingRole.getId())) {
+            throw new AppException(ErrorCode.USER_EXIST_IN_ROLE);
+        }
         roleRepository.delete(existingRole);
     }
 }
