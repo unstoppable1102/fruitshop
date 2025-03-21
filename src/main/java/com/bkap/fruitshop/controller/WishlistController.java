@@ -45,10 +45,14 @@ public class WishlistController {
 
     @DeleteMapping("/remove/{id}")
     public ApiResponse<Void> remove(@PathVariable int id) {
-        wishlistService.delete(id);
-        return ApiResponse.<Void>builder()
-                .code(HttpStatus.NO_CONTENT.value())
-                .message("Item is deleted from Wishlist")
-                .build();
+        try {
+            wishlistService.delete(id);
+            return ApiResponse.<Void>builder()
+                    .code(HttpStatus.NO_CONTENT.value())
+                    .message("Item is deleted from Wishlist")
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        }
     }
 }

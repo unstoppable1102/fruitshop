@@ -14,6 +14,7 @@ public class PostResponse {
     private Long id;
     private String title;
     private String shortDescription;
+    private String content;
     private String image;
     private boolean status;
 

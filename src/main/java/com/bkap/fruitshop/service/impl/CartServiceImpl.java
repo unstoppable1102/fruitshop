@@ -44,17 +44,12 @@ public class CartServiceImpl implements CartService {
                     return cartRepository.save(newCart);
                 });
 
-        List<CartItem> cartItems = cart.getCartItems();
         for (CartItemRequest itemRequest : request.getItems()) {
             Product product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
             CartItem cartItem = cartItemRepository.findByCartAndProduct(cart, product)
-                    .orElseGet(() -> {
-                        CartItem newCartItem = new CartItem(cart, product, 0);
-                        cartItemRepository.save(newCartItem);
-                        return newCartItem;
-                    });
+                    .orElseGet(() -> new CartItem(cart, product, itemRequest.getQuantity(), product.getPrice()));
             cartItem.setQuantity(cartItem.getQuantity() + itemRequest.getQuantity());
             cartItemRepository.save(cartItem);
         }

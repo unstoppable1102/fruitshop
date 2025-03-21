@@ -4,9 +4,11 @@ import com.bkap.fruitshop.dto.request.CategoryRequest;
 import com.bkap.fruitshop.dto.response.ApiResponse;
 import com.bkap.fruitshop.dto.response.CategoryResponse;
 import com.bkap.fruitshop.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,16 +31,15 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ApiResponse<CategoryResponse> create(@RequestBody CategoryRequest request){
-        try {
+    public ApiResponse<CategoryResponse> create(@Valid @RequestBody CategoryRequest request, BindingResult result){
+        if(result.hasErrors()){
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+        }
             return ApiResponse.<CategoryResponse>builder()
                     .code(HttpStatus.CREATED.value())
                     .message(HttpStatus.CREATED.getReasonPhrase())
                     .result(categoryService.save(request))
                     .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
     }
 
 
@@ -65,16 +66,15 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<CategoryResponse> update(@PathVariable long id, @RequestBody CategoryRequest request){
-        try {
+    public ApiResponse<CategoryResponse> update(@Valid @PathVariable long id, @RequestBody CategoryRequest request, BindingResult result){
+        if(result.hasErrors()){
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+        }
             return ApiResponse.<CategoryResponse>builder()
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
                     .result(categoryService.update(id, request))
                     .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
     }
 
     @DeleteMapping("/{id}")

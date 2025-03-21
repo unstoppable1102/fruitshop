@@ -8,9 +8,11 @@ import com.bkap.fruitshop.dto.response.UserResponse;
 import com.bkap.fruitshop.service.AuthenticationService;
 import com.bkap.fruitshop.service.UserService;
 import com.nimbusds.jose.JOSEException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,16 +42,16 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ApiResponse<UserResponse> register(@RequestBody UserRequest request) {
-        try {
+    public ApiResponse<UserResponse> register(@Valid @RequestBody UserRequest request, BindingResult result) {
+
+        if (result.hasErrors()) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+        }
             return ApiResponse.<UserResponse>builder()
                     .code(HttpStatus.CREATED.value())
                     .message(HttpStatus.CREATED.getReasonPhrase())
                     .result(userService.save(request))
                     .build();
-        }catch (Exception e){
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
     }
 
     @PostMapping("/introspect")

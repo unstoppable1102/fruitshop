@@ -17,5 +17,8 @@ public interface UserService {
      void deleteUser(Long id);
      User findByUsername(String username);
      UserResponse updateUserRoles(Long userId, Set<String> roleNames);
+     void forgotPassword(String email);
+     void resetPassword(String token, String newPassword);
+     void changePassword(Long userId, String oldPassword, String newPassword);
 
 }

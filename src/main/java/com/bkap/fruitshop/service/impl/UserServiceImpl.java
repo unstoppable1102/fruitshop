@@ -136,4 +136,31 @@ public class UserServiceImpl implements UserService {
         User updatedUser = userRepository.save(user);
         return modelMapper.map(updatedUser, UserResponse.class);
     }
+
+    //TODO
+    @Override
+    public void forgotPassword(String email) {
+
+    }
+
+    //TODO
+    @Override
+    public void resetPassword(String token, String newPassword) {
+
+    }
+
+    @Override
+    public void changePassword(Long userId, String oldPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        //check oldPassword
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_OLD_PASSWORD);
+        }
+
+        //update newPassword
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 }

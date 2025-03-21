@@ -4,8 +4,10 @@ import com.bkap.fruitshop.dto.request.PostRequest;
 import com.bkap.fruitshop.dto.response.ApiResponse;
 import com.bkap.fruitshop.dto.response.PostResponse;
 import com.bkap.fruitshop.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,16 +29,15 @@ public class PostController {
     }
 
     @PostMapping
-    public ApiResponse<PostResponse> createPost(@ModelAttribute PostRequest request){
-        try {
+    public ApiResponse<PostResponse> createPost(@Valid @ModelAttribute PostRequest request, BindingResult result){
+        if (result.hasErrors()) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+        }
             return ApiResponse.<PostResponse>builder()
                     .code(HttpStatus.CREATED.value())
                     .message(HttpStatus.CREATED.getReasonPhrase())
                     .result(postService.create(request))
                     .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
     }
 
     @GetMapping("/{id}")
@@ -53,17 +54,15 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<PostResponse> updatePost(@PathVariable Long id, @ModelAttribute PostRequest request){
-        try {
+    public ApiResponse<PostResponse> updatePost(@Valid @PathVariable Long id, @ModelAttribute PostRequest request, BindingResult result){
+        if (result.hasErrors()) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+        }
             return ApiResponse.<PostResponse>builder()
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
                     .result(postService.update(id, request))
                     .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
-
     }
 
     @GetMapping("/search/{title}")

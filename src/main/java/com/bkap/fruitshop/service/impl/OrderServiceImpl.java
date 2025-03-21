@@ -39,7 +39,6 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = new Order();
         order.setUser(user);
-        System.out.println("User ID trong Order: " + order.getUser().getId());
         order.setOrderStatus(EOrderStatus.NEW);
 
         List<Long> productIds = request.getItems().stream()
@@ -77,9 +76,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderResponse> getOrdersByUserId(Long userId) {
-        List<OrderResponse> orderResponses = orderRepository.findByUserId(userId);
-        return orderResponses.stream()
-                .map(orderResponse -> modelMapper.map(orderResponse, OrderResponse.class))
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders.stream()
+                .map(orderResponse -> modelMapper.map(orders, OrderResponse.class))
                 .collect(Collectors.toList());
     }
 

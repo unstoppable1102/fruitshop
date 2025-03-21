@@ -31,9 +31,10 @@ public class CartItem extends BaseModel{
     @Transient
     private int countCartItem;
 
-    public CartItem(Cart cart, Product product, int quantity) {
+    public CartItem(Cart cart, Product product, int quantity, double price) {
         this.cart = cart;
         this.product = product;
         this.quantity = quantity;
+        this.price = price;
     }
 }

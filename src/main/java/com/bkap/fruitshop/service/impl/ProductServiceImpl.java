@@ -72,9 +72,11 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        if (product.getProductName().equals(request.getProductName()) && productRepository.existsByProductName(request.getProductName())) {
+        if (product.getProductName().equals(request.getProductName()) &&
+                productRepository.existsByProductName(request.getProductName())) {
             throw new AppException(ErrorCode.PRODUCT_EXISTED);
         }
+
         product.setProductName(request.getProductName());
         product.setPrice(request.getPrice());
         product.setPriceOld(request.getPriceOld());
@@ -94,10 +96,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(long id) {
-        if (!productRepository.existsById(id)) {
-            throw new AppException(ErrorCode.PRODUCT_NOT_FOUND);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        if (product.getImage() != null && !product.getImage().isEmpty()) {
+            uploadFileUtil.deleteImage(product.getImage());
         }
-        productRepository.deleteById(id);
+        productRepository.delete(product);
 
     }
 

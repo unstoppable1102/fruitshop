@@ -37,7 +37,6 @@ public class WishlistServiceImpl implements WishlistService {
 
     @Override
     public WishlistResponse save(WishlistRequest request) {
-
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -45,25 +44,23 @@ public class WishlistServiceImpl implements WishlistService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
 
-        Wishlist exists = wishlistRepository.findByUserIdAndProductId(request.getUserId(), request.getProductId());
-        if (exists != null) {
-            return modelMapper.map(exists, WishlistResponse.class);
+        return wishlistRepository.findByUserIdAndProductId(request.getUserId(), request.getProductId())
+                .map(existingWishlist -> modelMapper.map(existingWishlist, WishlistResponse.class))
+                .orElseGet(() -> {
+                    Wishlist wishlist = new Wishlist();
+                    wishlist.setUser(user);
+                    wishlist.setProduct(product);
+                    wishlist.setPrice(product.getPrice());
 
-        }else {
-            Wishlist wishlist = new Wishlist();
-            wishlist.setUser(user);
-            wishlist.setProduct(product);
-            wishlist.setPrice(product.getPrice());
-            return modelMapper.map(wishlistRepository.save(wishlist), WishlistResponse.class);
-        }
-
+                    Wishlist saved = wishlistRepository.save(wishlist);
+                    return modelMapper.map(saved, WishlistResponse.class);
+                });
     }
 
     @Override
     public void delete(long id) {
-        if (!wishlistRepository.existsById(id)) {
-            throw new AppException(ErrorCode.WISHLIST_NOT_FOUND);
-        }
-        wishlistRepository.deleteById(id);
+        Wishlist wishlist = wishlistRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.WISHLIST_NOT_FOUND));
+        wishlistRepository.delete(wishlist);
     }
 }

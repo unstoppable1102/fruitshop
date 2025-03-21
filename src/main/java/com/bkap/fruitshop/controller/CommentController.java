@@ -4,8 +4,10 @@ import com.bkap.fruitshop.dto.request.CommentRequest;
 import com.bkap.fruitshop.dto.response.ApiResponse;
 import com.bkap.fruitshop.dto.response.CommentResponse;
 import com.bkap.fruitshop.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,16 +29,15 @@ public class CommentController {
     }
 
     @PostMapping
-    public ApiResponse<CommentResponse> createComment(@RequestBody CommentRequest request){
-        try {
-            return ApiResponse.<CommentResponse>builder()
-                    .code(HttpStatus.CREATED.value())
-                    .message(HttpStatus.CREATED.getReasonPhrase())
-                    .result(commentService.create(request))
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+    public ApiResponse<CommentResponse> createComment(@Valid @RequestBody CommentRequest request, BindingResult result){
+        if (result.hasErrors()) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
         }
+        return ApiResponse.<CommentResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message(HttpStatus.CREATED.getReasonPhrase())
+                .result(commentService.create(request))
+                .build();
     }
 
     @GetMapping("/{id}")
@@ -53,16 +54,15 @@ public class CommentController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<CommentResponse> updateComment(@PathVariable long id, @RequestBody CommentRequest request){
-        try {
+    public ApiResponse<CommentResponse> updateComment(@Valid @PathVariable long id, @RequestBody CommentRequest request, BindingResult result){
+        if (result.hasErrors()) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+        }
             return ApiResponse.<CommentResponse>builder()
                     .code(HttpStatus.CREATED.value())
                     .message(HttpStatus.CREATED.getReasonPhrase())
                     .result(commentService.update(id, request))
                     .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
     }
 
     @DeleteMapping("/{id}")

@@ -1,5 +1,6 @@
 package com.bkap.fruitshop.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
@@ -8,6 +9,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 public class RoleRequest {
+    @NotBlank(message = "Role name is required")
     private String name;
     private String description;
 
