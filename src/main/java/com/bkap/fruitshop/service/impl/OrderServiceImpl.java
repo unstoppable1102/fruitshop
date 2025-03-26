@@ -3,7 +3,6 @@ package com.bkap.fruitshop.service.impl;
 import com.bkap.fruitshop.common.util.EOrderStatus;
 import com.bkap.fruitshop.dto.request.OrderItemRequest;
 import com.bkap.fruitshop.dto.request.OrderRequest;
-import com.bkap.fruitshop.dto.response.OrderItemResponse;
 import com.bkap.fruitshop.dto.response.OrderResponse;
 import com.bkap.fruitshop.entity.Order;
 import com.bkap.fruitshop.entity.OrderItem;

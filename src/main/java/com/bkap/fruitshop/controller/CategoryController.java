@@ -9,9 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -33,7 +35,10 @@ public class CategoryController {
     @PostMapping
     public ApiResponse<CategoryResponse> create(@Valid @RequestBody CategoryRequest request, BindingResult result){
         if(result.hasErrors()){
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
         }
             return ApiResponse.<CategoryResponse>builder()
                     .code(HttpStatus.CREATED.value())
@@ -68,7 +73,10 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ApiResponse<CategoryResponse> update(@Valid @PathVariable long id, @RequestBody CategoryRequest request, BindingResult result){
         if(result.hasErrors()){
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
         }
             return ApiResponse.<CategoryResponse>builder()
                     .code(HttpStatus.OK.value())

@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,7 +32,10 @@ public class CommentController {
     @PostMapping
     public ApiResponse<CommentResponse> createComment(@Valid @RequestBody CommentRequest request, BindingResult result){
         if (result.hasErrors()) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
         }
         return ApiResponse.<CommentResponse>builder()
                 .code(HttpStatus.CREATED.value())
@@ -56,7 +60,10 @@ public class CommentController {
     @PutMapping("/{id}")
     public ApiResponse<CommentResponse> updateComment(@Valid @PathVariable long id, @RequestBody CommentRequest request, BindingResult result){
         if (result.hasErrors()) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
         }
             return ApiResponse.<CommentResponse>builder()
                     .code(HttpStatus.CREATED.value())

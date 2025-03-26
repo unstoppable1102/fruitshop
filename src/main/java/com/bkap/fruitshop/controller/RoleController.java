@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,10 @@ public class RoleController {
     @PostMapping
     public ApiResponse<RoleResponse> createRole(@Valid @RequestBody RoleRequest request, BindingResult result) {
         if (result.hasErrors()) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
         }
         return ApiResponse.<RoleResponse>builder()
                 .code(HttpStatus.CREATED.value())

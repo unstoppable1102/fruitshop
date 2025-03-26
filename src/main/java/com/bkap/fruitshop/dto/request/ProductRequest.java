@@ -22,8 +22,9 @@ public class ProductRequest implements Serializable {
     private double priceOld;
     @Min(value = 0, message = "Số lượng sản phẩm không được nhỏ hơn 0")
     private int quantity;
+    @NotNull(message = "Mô tả không được để trống")
     private String description;
     private MultipartFile image;
-    @NotNull(message = "Danh mục không được để trống")
+    @NotBlank(message = "Danh mục không được để trống")
     private Long categoryId;
 }

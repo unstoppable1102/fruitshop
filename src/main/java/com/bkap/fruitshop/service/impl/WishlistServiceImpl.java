@@ -30,7 +30,7 @@ public class WishlistServiceImpl implements WishlistService {
     @Override
     public List<WishlistResponse> findWishlistsByUserId(long userId) {
         return wishlistRepository.findWishlistsByUserId(userId).stream()
-                .map((element) -> modelMapper.map(element, WishlistResponse.class))
+                .map(e -> modelMapper.map(e, WishlistResponse.class))
                 .collect(Collectors.toList());
     }
 

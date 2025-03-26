@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -75,7 +76,10 @@ public class UserController {
     @PutMapping("/{id}")
     public ApiResponse<UserResponse> update(@Valid @PathVariable Long id, @RequestBody UserRequest request, BindingResult result){
         if(result.hasErrors()){
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
         }
         return ApiResponse.<UserResponse>builder()
                 .code(HttpStatus.OK.value())

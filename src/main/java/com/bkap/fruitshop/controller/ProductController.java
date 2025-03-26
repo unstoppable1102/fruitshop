@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +23,10 @@ public class ProductController {
     @PostMapping
     public ApiResponse<ProductResponse> createProduct(@Valid @ModelAttribute ProductRequest request, BindingResult result){
         if(result.hasErrors()){
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
         }
             return ApiResponse.<ProductResponse>builder()
                     .code(HttpStatus.CREATED.value())
@@ -69,7 +73,10 @@ public class ProductController {
     @PutMapping("/{id}")
     public ApiResponse<ProductResponse> updateProduct(@Valid @PathVariable long id, @ModelAttribute ProductRequest request, BindingResult result){
         if(result.hasErrors()){
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
         }
             return ApiResponse.<ProductResponse>builder()
                     .code(HttpStatus.OK.value())

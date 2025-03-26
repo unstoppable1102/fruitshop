@@ -5,8 +5,11 @@ import com.bkap.fruitshop.dto.response.ApiResponse;
 import com.bkap.fruitshop.dto.response.CartItemResponse;
 import com.bkap.fruitshop.dto.response.CartResponse;
 import com.bkap.fruitshop.service.CartService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,17 +66,20 @@ public class CartController {
     }
 
     @PostMapping
-    public ApiResponse<CartResponse> addToCart(@RequestBody CartRequest request) {
+    public ApiResponse<CartResponse> addToCart(@Valid @RequestBody CartRequest request, BindingResult result) {
 
-        try {
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
+        }
             return ApiResponse.<CartResponse>builder()
                     .code(HttpStatus.CREATED.value())
                     .message(HttpStatus.CREATED.getReasonPhrase())
                     .result(cartService.addToCart(request))
                     .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
+
     }
 
     @DeleteMapping("/remove")

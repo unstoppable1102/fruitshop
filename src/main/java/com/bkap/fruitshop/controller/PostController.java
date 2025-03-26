@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,7 +32,10 @@ public class PostController {
     @PostMapping
     public ApiResponse<PostResponse> createPost(@Valid @ModelAttribute PostRequest request, BindingResult result){
         if (result.hasErrors()) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
         }
             return ApiResponse.<PostResponse>builder()
                     .code(HttpStatus.CREATED.value())
@@ -56,7 +60,10 @@ public class PostController {
     @PutMapping("/{id}")
     public ApiResponse<PostResponse> updatePost(@Valid @PathVariable Long id, @ModelAttribute PostRequest request, BindingResult result){
         if (result.hasErrors()) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+            List<String> errorMessages = result.getFieldErrors().stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
         }
             return ApiResponse.<PostResponse>builder()
                     .code(HttpStatus.OK.value())
