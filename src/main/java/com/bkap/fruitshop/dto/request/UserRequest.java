@@ -29,6 +29,6 @@ public class UserRequest {
     @Pattern(regexp = "^\\d{10,11}$", message = "Số điện thoại phải có 10 hoặc 11 chữ số")
     private String phone;
 
-    @Past(message = "Ngày sinh phải là ngày trong quá khứ")
+    @Past(message = "Ngày sinh không phải là ngày trong quá khứ")
     private Date birthday;
 }

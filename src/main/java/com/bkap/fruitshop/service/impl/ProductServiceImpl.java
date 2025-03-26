@@ -2,6 +2,7 @@ package com.bkap.fruitshop.service.impl;
 
 import com.bkap.fruitshop.common.util.UploadFileUtil;
 import com.bkap.fruitshop.dto.request.ProductRequest;
+import com.bkap.fruitshop.dto.response.PageResponse;
 import com.bkap.fruitshop.dto.response.ProductResponse;
 import com.bkap.fruitshop.entity.Category;
 import com.bkap.fruitshop.entity.Product;
@@ -12,7 +13,10 @@ import com.bkap.fruitshop.repository.ProductRepository;
 import com.bkap.fruitshop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,10 +31,20 @@ public class ProductServiceImpl implements ProductService {
     private final UploadFileUtil uploadFileUtil;
 
     @Override
-    public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map((element) -> modelMapper.map(element, ProductResponse.class))
-                .collect(Collectors.toList());
+    public PageResponse<ProductResponse> getAllProducts(String keyword, Pageable pageable) {
+        Page<Product> productPage;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            productPage = productRepository.findByProductNameContainingIgnoreCase(keyword, pageable);
+        } else {
+            productPage = productRepository.findAll(pageable);
+        }
+
+        List<ProductResponse> productResponses = productPage.getContent().stream()
+                .map(product -> modelMapper.map(product, ProductResponse.class))
+                .toList();
+
+        return new PageResponse<>(productPage.getNumber(), productPage.getSize(),
+                productPage.getTotalElements(), productPage.getTotalPages(), productPage.isLast(), productResponses);
     }
 
     @Override
@@ -104,13 +118,5 @@ public class ProductServiceImpl implements ProductService {
         }
         productRepository.delete(product);
 
-    }
-
-    @Override
-    public List<ProductResponse> findByProductName(String name) {
-        List<Product> products = productRepository.findByProductNameContainingIgnoreCase(name);
-        return products.stream()
-                .map((element) -> modelMapper.map(element, ProductResponse.class))
-                .collect(Collectors.toList());
     }
 }

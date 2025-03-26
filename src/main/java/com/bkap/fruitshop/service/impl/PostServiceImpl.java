@@ -2,6 +2,7 @@ package com.bkap.fruitshop.service.impl;
 
 import com.bkap.fruitshop.common.util.UploadFileUtil;
 import com.bkap.fruitshop.dto.request.PostRequest;
+import com.bkap.fruitshop.dto.response.PageResponse;
 import com.bkap.fruitshop.dto.response.PostResponse;
 import com.bkap.fruitshop.entity.Post;
 import com.bkap.fruitshop.entity.PostCategory;
@@ -12,6 +13,8 @@ import com.bkap.fruitshop.repository.PostRepository;
 import com.bkap.fruitshop.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,10 +30,18 @@ public class PostServiceImpl implements PostService {
     private final PostCategoryRepository postCategoryRepository;
 
     @Override
-    public List<PostResponse> findAll() {
-        return postRepository.findAll().stream()
-                .map(e -> modelMapper.map(e, PostResponse.class))
-                .collect(Collectors.toList());
+    public PageResponse<PostResponse> findAll(String keyword, Pageable pageable) {
+        Page<Post> postPage;
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            postPage = postRepository.findByTitleContainingIgnoreCase(keyword, pageable);
+        }else {
+            postPage = postRepository.findAll(pageable);
+        }
+        List<PostResponse> postResponses = postPage.getContent().stream()
+                .map(post -> modelMapper.map(post, PostResponse.class))
+                .toList();
+        return new PageResponse<>(postPage.getNumber(), postPage.getSize(),
+                postPage.getTotalElements(), postPage.getTotalPages(), postPage.isLast(), postResponses);
     }
 
     @Override

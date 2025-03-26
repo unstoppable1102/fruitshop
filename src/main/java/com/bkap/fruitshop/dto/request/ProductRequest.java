@@ -25,6 +25,6 @@ public class ProductRequest implements Serializable {
     @NotNull(message = "Mô tả không được để trống")
     private String description;
     private MultipartFile image;
-    @NotBlank(message = "Danh mục không được để trống")
+    @NotNull(message = "Danh mục không được để trống")
     private Long categoryId;
 }

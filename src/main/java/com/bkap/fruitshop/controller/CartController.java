@@ -67,7 +67,6 @@ public class CartController {
 
     @PostMapping
     public ApiResponse<CartResponse> addToCart(@Valid @RequestBody CartRequest request, BindingResult result) {
-
         if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors().stream()
                     .map(FieldError::getDefaultMessage)
@@ -79,7 +78,6 @@ public class CartController {
                     .message(HttpStatus.CREATED.getReasonPhrase())
                     .result(cartService.addToCart(request))
                     .build();
-
     }
 
     @DeleteMapping("/remove")

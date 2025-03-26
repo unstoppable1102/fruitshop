@@ -1,6 +1,7 @@
 package com.bkap.fruitshop.service.impl;
 
 import com.bkap.fruitshop.dto.request.UserRequest;
+import com.bkap.fruitshop.dto.response.PageResponse;
 import com.bkap.fruitshop.dto.response.UserResponse;
 import com.bkap.fruitshop.entity.Role;
 import com.bkap.fruitshop.entity.User;
@@ -11,6 +12,8 @@ import com.bkap.fruitshop.repository.UserRepository;
 import com.bkap.fruitshop.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,10 +57,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream()
+    public PageResponse<UserResponse> getAllUsers(Pageable pageable) {
+        Page<User> userPage = userRepository.findAll(pageable);
+
+        List<UserResponse> responses = userPage.getContent()
+                .stream()
                 .map(user -> modelMapper.map(user, UserResponse.class))
-                .collect(Collectors.toList());
+                .toList();
+
+        return new PageResponse<>(userPage.getNumber(), userPage.getSize(),
+                userPage.getTotalElements(), userPage.getTotalPages(), userPage.isLast(), responses);
     }
 
     @Override

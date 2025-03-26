@@ -2,11 +2,15 @@ package com.bkap.fruitshop.controller;
 
 import com.bkap.fruitshop.dto.request.UserRequest;
 import com.bkap.fruitshop.dto.response.ApiResponse;
+import com.bkap.fruitshop.dto.response.PageResponse;
 import com.bkap.fruitshop.dto.response.UserResponse;
 import com.bkap.fruitshop.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -25,11 +29,12 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ApiResponse<List<UserResponse>> findAll() {
-        return ApiResponse.<List<UserResponse>>builder()
+    public ApiResponse<PageResponse<UserResponse>> findAll(
+            @PageableDefault(size = 2, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+        return ApiResponse.<PageResponse<UserResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(userService.getAllUsers())
+                .result(userService.getAllUsers(pageable))
                 .build();
     }
 

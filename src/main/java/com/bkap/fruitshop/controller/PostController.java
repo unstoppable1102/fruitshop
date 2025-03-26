@@ -2,10 +2,14 @@ package com.bkap.fruitshop.controller;
 
 import com.bkap.fruitshop.dto.request.PostRequest;
 import com.bkap.fruitshop.dto.response.ApiResponse;
+import com.bkap.fruitshop.dto.response.PageResponse;
 import com.bkap.fruitshop.dto.response.PostResponse;
 import com.bkap.fruitshop.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -21,11 +25,15 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public ApiResponse<List<PostResponse>> getAllPosts() {
-        return ApiResponse.<List<PostResponse>>builder()
+    public ApiResponse<PageResponse<PostResponse>> getAllPosts(
+            @RequestParam(required = false) String keyword,
+            @PageableDefault(size = 2, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+
+        return ApiResponse.<PageResponse<PostResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(postService.findAll())
+                .result(postService.findAll(keyword, pageable))
                 .build();
     }
 
@@ -70,19 +78,6 @@ public class PostController {
                     .message(HttpStatus.OK.getReasonPhrase())
                     .result(postService.update(id, request))
                     .build();
-    }
-
-    @GetMapping("/search/{title}")
-    public ApiResponse<List<PostResponse>> getPostsByTitle(@PathVariable String title){
-        try {
-            return ApiResponse.<List<PostResponse>>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(postService.findByTitle(title))
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
     }
 
     @DeleteMapping("/{id}")

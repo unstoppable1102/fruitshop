@@ -2,10 +2,15 @@ package com.bkap.fruitshop.controller;
 
 import com.bkap.fruitshop.dto.request.ProductRequest;
 import com.bkap.fruitshop.dto.response.ApiResponse;
+import com.bkap.fruitshop.dto.response.PageResponse;
 import com.bkap.fruitshop.dto.response.ProductResponse;
 import com.bkap.fruitshop.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -36,11 +41,13 @@ public class ProductController {
     }
 
     @GetMapping
-    public ApiResponse<List<ProductResponse>> findAllProducts(){
-        return ApiResponse.<List<ProductResponse>>builder()
+    public ApiResponse<PageResponse<ProductResponse>> findAllProducts(
+            @RequestParam(required = false) String keyword,
+            @PageableDefault(size = 2, sort = "id", direction = Sort.Direction.ASC) Pageable pageable){
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(productService.getAllProducts())
+                .result(productService.getAllProducts(keyword, pageable))
                 .build();
     }
 
@@ -51,19 +58,6 @@ public class ProductController {
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
                     .result(productService.getProductById(id))
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-        }
-    }
-
-    @GetMapping("/search/{name}")
-    public ApiResponse<List<ProductResponse>> findProductByName(@PathVariable String name){
-        try {
-            return ApiResponse.<List<ProductResponse>>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(productService.findByProductName(name))
                     .build();
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
