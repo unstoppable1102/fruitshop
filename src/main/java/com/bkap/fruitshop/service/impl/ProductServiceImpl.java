@@ -15,11 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,18 +31,42 @@ public class ProductServiceImpl implements ProductService {
     private final UploadFileUtil uploadFileUtil;
 
     @Override
-    public PageResponse<ProductResponse> getAllProducts(String keyword, Pageable pageable) {
+    public PageResponse<ProductResponse> getAllProducts(String keyword, Double minPrice, Double maxPrice, Pageable pageable) {
+        Specification<Product> spec = Specification.where(null);
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            spec = spec.and((root, criteriaQuery, cb) ->
+                    cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%"));
+        }
+        if (minPrice != null) {
+            spec = spec.and(((root, query, cb) ->
+                    cb.greaterThanOrEqualTo(root.get("price"), minPrice)));
+        }
+        if (maxPrice != null) {
+            spec = spec.and(((root, query, cb) ->
+                    cb.lessThanOrEqualTo(root.get("price"), maxPrice)));
+        }
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
+        List<ProductResponse> productResponses = productPage.getContent().stream()
+                .map(product -> modelMapper.map(product, ProductResponse.class))
+                .toList();
+        return new PageResponse<>(productPage.getNumber(), productPage.getSize(),
+                productPage.getTotalElements(), productPage.getTotalPages(), productPage.isLast(), productResponses);
+    }
+
+    @Override
+    public PageResponse<ProductResponse> getProductsByCategory(Long categoryId, String keyword, Double minPrice, Double maxPrice, Pageable pageable) {
         Page<Product> productPage;
         if (keyword != null && !keyword.trim().isEmpty()) {
-            productPage = productRepository.findByProductNameContainingIgnoreCase(keyword, pageable);
-        } else {
-            productPage = productRepository.findAll(pageable);
+            productPage = productRepository.findByCategoryIdAndProductNameContainingIgnoreCase(categoryId, keyword, pageable);
+        }else if (minPrice != null && maxPrice != null) {
+            productPage = productRepository.findByCategoryIdAndPriceBetween(categoryId, minPrice, maxPrice, pageable);
+        }else {
+            productPage = productRepository.findByCategoryId(categoryId, pageable);
         }
 
         List<ProductResponse> productResponses = productPage.getContent().stream()
                 .map(product -> modelMapper.map(product, ProductResponse.class))
                 .toList();
-
         return new PageResponse<>(productPage.getNumber(), productPage.getSize(),
                 productPage.getTotalElements(), productPage.getTotalPages(), productPage.isLast(), productResponses);
     }

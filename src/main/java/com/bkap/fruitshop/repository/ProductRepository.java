@@ -4,9 +4,12 @@ import com.bkap.fruitshop.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-    Page<Product> findByProductNameContainingIgnoreCase(String name, Pageable pageable);
     boolean existsByProductName(String productName);
+    Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
+    Page<Product> findByCategoryIdAndProductNameContainingIgnoreCase(Long categoryId, String keyword, Pageable pageable);
+    Page<Product> findByCategoryIdAndPriceBetween(Long categoryId, Double minPrice, Double maxPrice, Pageable pageable);
 }

@@ -7,7 +7,7 @@ import com.bkap.fruitshop.dto.response.ProductResponse;
 import com.bkap.fruitshop.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -43,11 +43,42 @@ public class ProductController {
     @GetMapping
     public ApiResponse<PageResponse<ProductResponse>> findAllProducts(
             @RequestParam(required = false) String keyword,
-            @PageableDefault(size = 2, sort = "id", direction = Sort.Direction.ASC) Pageable pageable){
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(defaultValue = "productName") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "2") int size,
+            @RequestParam(defaultValue = "0") int page){
+
+        Sort sort = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        PageResponse<ProductResponse> pageResponse = productService.getAllProducts(keyword, minPrice, maxPrice, pageable);
         return ApiResponse.<PageResponse<ProductResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(productService.getAllProducts(keyword, pageable))
+                .result(pageResponse)
+                .build();
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ApiResponse<PageResponse<ProductResponse>> getProductsByCategory(
+            @PathVariable Long categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection,
+            @PageableDefault(size = 3) Pageable pageable){
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+
+        return ApiResponse.<PageResponse<ProductResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(productService.getProductsByCategory(categoryId, keyword, minPrice, maxPrice, sortedPageable))
                 .build();
     }
 

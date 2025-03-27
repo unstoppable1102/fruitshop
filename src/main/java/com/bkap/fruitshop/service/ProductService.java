@@ -9,7 +9,8 @@ public interface ProductService {
 
     ProductResponse createProduct(ProductRequest request);
     ProductResponse getProductById(long id);
-    PageResponse<ProductResponse> getAllProducts(String keyword, Pageable pageable);
+    PageResponse<ProductResponse> getAllProducts(String keyword, Double minPrice, Double maxPrice, Pageable pageable);
+    PageResponse<ProductResponse> getProductsByCategory(Long categoryId, String keyword, Double minPrice, Double maxPrice, Pageable pageable);
     ProductResponse updateProduct(long id, ProductRequest request);
     void deleteProduct(long id);
 }

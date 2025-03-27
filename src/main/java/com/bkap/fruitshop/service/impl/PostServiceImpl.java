@@ -100,11 +100,5 @@ public class PostServiceImpl implements PostService {
         }
         postRepository.delete(post);
     }
-
-    @Override
-    public List<PostResponse> findByTitle(String title) {
-        return postRepository.findByTitleContainingIgnoreCase(title).stream()
-                .map((element) -> modelMapper.map(element, PostResponse.class))
-                .collect(Collectors.toList());
-    }
+    
 }
