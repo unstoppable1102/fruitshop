@@ -1,6 +1,7 @@
 package com.bkap.fruitshop.controller;
 
 import com.bkap.fruitshop.dto.request.UserRequest;
+import com.bkap.fruitshop.dto.request.UserUpdateInforRequest;
 import com.bkap.fruitshop.dto.response.ApiResponse;
 import com.bkap.fruitshop.dto.response.PageResponse;
 import com.bkap.fruitshop.dto.response.UserResponse;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +32,7 @@ public class UserController {
 
     @GetMapping
     public ApiResponse<PageResponse<UserResponse>> findAll(
-            @PageableDefault(size = 2, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+            @PageableDefault(size = 3, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return ApiResponse.<PageResponse<UserResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
@@ -53,6 +55,7 @@ public class UserController {
 
 
     @GetMapping("/{id}")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<UserResponse> findById(@PathVariable Long id){
         try {
             return ApiResponse.<UserResponse>builder()
@@ -79,7 +82,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<UserResponse> update(@Valid @PathVariable Long id, @RequestBody UserRequest request, BindingResult result){
+    public ApiResponse<UserResponse> update(@Valid @PathVariable Long id, @RequestBody UserUpdateInforRequest request, BindingResult result){
         if(result.hasErrors()){
             List<String> errorMessages = result.getFieldErrors().stream()
                     .map(FieldError::getDefaultMessage)

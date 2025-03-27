@@ -1,6 +1,7 @@
 package com.bkap.fruitshop.service.impl;
 
 import com.bkap.fruitshop.dto.request.UserRequest;
+import com.bkap.fruitshop.dto.request.UserUpdateInforRequest;
 import com.bkap.fruitshop.dto.response.PageResponse;
 import com.bkap.fruitshop.dto.response.UserResponse;
 import com.bkap.fruitshop.entity.Role;
@@ -15,6 +16,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -69,10 +72,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("returnObject.username == authentication.name || hasRole('ADMIN')")
+    @PreAuthorize("authentication.name == @userServiceImpl.findUsernameById(#id) || hasRole('ADMIN')")
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        if (!currentUsername.equals(user.getUsername()) && !authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+            throw new AppException(ErrorCode.ACCESS_DENIED);
+        }
         return modelMapper.map(user, UserResponse.class);
     }
 
@@ -86,16 +96,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @PreAuthorize("authentication.name == @userServiceImpl.findByUsername(#id).username || hasRole('ADMIN')")
-    public UserResponse updateUser(Long id, UserRequest request) {
+    @PreAuthorize("authentication.name != null && authentication.name == @userServiceImpl.findUsernameById(#id) || hasRole('ADMIN')")
+    public UserResponse updateUser(Long id, UserUpdateInforRequest request) {
         // Tìm người dùng theo id
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         // Cập nhật thông tin từ request lên đối tượng user
-        modelMapper.map(request, user);
-
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        if (request.getFullName() != null){
+            user.setFullName(request.getFullName());
+        }
+        if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())){
+            if (userRepository.existsByEmail(request.getEmail())){
+                throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTED);
+            }
+            user.setEmail(request.getEmail());
+        }
+        if (request.getPhone() != null){
+            user.setPhone(request.getPhone());
+        }
+        if (request.getBirthday() != null){
+            user.setBirthday(request.getBirthday());
+        }
 
         // Lưu thay đổi vào database
         User updatedUser = userRepository.save(user);
@@ -172,4 +194,13 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
+    @Override
+    public String findUsernameById(Long id) {
+        return userRepository.findById(id)
+                .map(User::getUsername)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
+
 }

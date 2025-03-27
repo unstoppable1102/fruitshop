@@ -7,6 +7,7 @@ import com.bkap.fruitshop.service.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,7 @@ public class RoleController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<RoleResponse>> getAllRoles() {
         try {
             return ApiResponse.<List<RoleResponse>>builder()
@@ -48,6 +50,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/{role}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<String> deleteRole(@PathVariable String role) {
         try {
             roleService.delete(role);

@@ -39,8 +39,10 @@ public enum ErrorCode {
     ORDER_CANNOT_BE_UPDATED(1028, "Order status can not be updated", HttpStatus.BAD_REQUEST),
     INVALID_REQUEST(1029, "Request invalided", HttpStatus.BAD_REQUEST),
     USER_EXIST_IN_ROLE(1030, "User exist in role, cannot be deleted", HttpStatus.BAD_REQUEST),
-    CANNOT_DELETE_ADMIN(1030, "User has admin role, cannot be deleted", HttpStatus.BAD_REQUEST),
-    INVALID_OLD_PASSWORD(1031, "The password is not correct", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_ADMIN(1031, "User has admin role, cannot be deleted", HttpStatus.BAD_REQUEST),
+    INVALID_OLD_PASSWORD(1032, "The password is not correct", HttpStatus.BAD_REQUEST),
+    EMAIL_ALREADY_EXISTED(1033, "Email has already existed", HttpStatus.BAD_REQUEST),
+    ACCESS_DENIED(1034, "Access denied", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

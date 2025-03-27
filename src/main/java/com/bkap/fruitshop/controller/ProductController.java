@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -44,9 +43,9 @@ public class ProductController {
     public ApiResponse<PageResponse<ProductResponse>> findAllProducts(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Double minPrice,
-            @RequestParam(defaultValue = "productName") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection,
             @RequestParam(required = false) Double maxPrice,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection,
             @RequestParam(defaultValue = "3") int size,
             @RequestParam(defaultValue = "0") int page){
 

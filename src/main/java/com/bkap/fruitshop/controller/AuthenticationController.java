@@ -63,25 +63,34 @@ public class AuthenticationController {
     }
 
     @PostMapping("/introspect")
-    ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
-        var result = authenticationService.introspect(request);
+    ApiResponse<IntrospectResponse> introspect(@Valid @RequestBody IntrospectRequest request, BindingResult result) throws ParseException, JOSEException {
+        if (result.hasErrors()) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+        }
+        var results = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
-                .result(result)
+                .result(results)
                 .build();
     }
 
     @PostMapping("/logout")
-    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws JOSEException, ParseException {
+    ApiResponse<Void> logout(@Valid @RequestBody LogoutRequest request, BindingResult result) throws JOSEException, ParseException {
+        if (result.hasErrors()) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+        }
         authenticationService.logout(request);
         return ApiResponse.<Void>builder()
                 .build();
     }
 
     @PostMapping("/refresh")
-    ApiResponse<AuthenticationResponse> refresh (@RequestBody RefreshRequest request) throws ParseException, JOSEException {
-            var result = authenticationService.refreshToken(request);
+    ApiResponse<AuthenticationResponse> refresh (@Valid @RequestBody RefreshRequest request, BindingResult result) throws ParseException, JOSEException {
+        if (result.hasErrors()) {
+            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
+        }
+        var results = authenticationService.refreshToken(request);
             return ApiResponse.<AuthenticationResponse>builder()
-                    .result(result)
+                    .result(results)
                     .build();
     }
 
