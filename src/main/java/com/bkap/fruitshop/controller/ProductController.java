@@ -47,7 +47,7 @@ public class ProductController {
             @RequestParam(defaultValue = "productName") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection,
             @RequestParam(required = false) Double maxPrice,
-            @RequestParam(defaultValue = "2") int size,
+            @RequestParam(defaultValue = "3") int size,
             @RequestParam(defaultValue = "0") int page){
 
         Sort sort = sortDirection.equalsIgnoreCase("desc")
@@ -93,6 +93,16 @@ public class ProductController {
         } catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
         }
+    }
+
+    @GetMapping("/related/{productId}")
+    public ApiResponse<List<ProductResponse>> getRelatedProducts(@PathVariable long productId){
+
+        return ApiResponse.<List<ProductResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(productService.getRelatedProducts(productId))
+                .build();
     }
 
     @PutMapping("/{id}")

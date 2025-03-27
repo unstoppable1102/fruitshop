@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -110,10 +109,6 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        if (product.getProductName().equals(request.getProductName()) &&
-                productRepository.existsByProductName(request.getProductName())) {
-            throw new AppException(ErrorCode.PRODUCT_EXISTED);
-        }
 
         product.setProductName(request.getProductName());
         product.setPrice(request.getPrice());
@@ -142,5 +137,16 @@ public class ProductServiceImpl implements ProductService {
         }
         productRepository.delete(product);
 
+    }
+
+    @Override
+    public List<ProductResponse> getRelatedProducts(Long id) {
+        Product currentProduct = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        List <Product> relatedProducts = productRepository.findByCategoryIdAndIdNot(currentProduct.getCategory().getId(), id);
+        return relatedProducts.stream()
+                .map(product -> modelMapper.map(product, ProductResponse.class))
+                .toList();
     }
 }

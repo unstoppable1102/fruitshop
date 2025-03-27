@@ -17,7 +17,7 @@ public class WishlistController {
 
     private final WishlistService wishlistService;
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ApiResponse<List<WishlistResponse>> getWishlistsByUserId(@PathVariable("userId") long userId) {
         try {
             return ApiResponse.<List<WishlistResponse>>builder()

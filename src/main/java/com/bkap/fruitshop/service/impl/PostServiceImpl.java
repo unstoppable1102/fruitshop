@@ -76,9 +76,6 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
-        if(post.getTitle().equals(request.getTitle()) && postRepository.existsByTitleIgnoreCase(request.getTitle())) {
-            throw new AppException(ErrorCode.POST_EXISTED);
-        }
         modelMapper.map(request, post);
         post.setPostCategory(postCategory);
 

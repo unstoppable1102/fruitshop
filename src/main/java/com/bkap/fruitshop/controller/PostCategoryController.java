@@ -21,7 +21,13 @@ public class PostCategoryController {
     private final PostCategoryService postCategoryService;
 
     @GetMapping
-    public ApiResponse<List<PostCategoryResponse>> getAllPostCategories() {
+    public ApiResponse<List<PostCategoryResponse>> getAllPostCategories(
+            @RequestParam(required = false) String name) {
+
+        List<PostCategoryResponse> responses = (name == null || name.trim().isEmpty())
+                ? postCategoryService.findAll()
+                : postCategoryService.findByName(name);
+
         return ApiResponse.<List<PostCategoryResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
@@ -51,19 +57,6 @@ public class PostCategoryController {
                     .code(HttpStatus.OK.value())
                     .message(HttpStatus.OK.getReasonPhrase())
                     .result(postCategoryService.findById(id))
-                    .build();
-        }catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-        }
-    }
-
-    @GetMapping("/search/{name}")
-    public ApiResponse<List<PostCategoryResponse>> getByName(@PathVariable String name) {
-        try {
-            return ApiResponse.<List<PostCategoryResponse>>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(postCategoryService.findByName(name))
                     .build();
         }catch (Exception e) {
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());

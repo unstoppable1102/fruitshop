@@ -13,7 +13,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -24,11 +23,16 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ApiResponse<List<CategoryResponse>> findAll(){
+    public ApiResponse<List<CategoryResponse>> findAll(
+            @RequestParam(required = false) String name){
+
+        List<CategoryResponse> responses = (name == null || name.isEmpty())
+                ? categoryService.findAll()
+                : categoryService.findByName(name);
         return ApiResponse.<List<CategoryResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(categoryService.findAll())
+                .result(responses)
                 .build();
     }
 
@@ -59,15 +63,6 @@ public class CategoryController {
         }catch (Exception e){
             return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
         }
-    }
-
-    @GetMapping("/search/{name}")
-    public ApiResponse<List<CategoryResponse>> findByName(@PathVariable String name){
-        return ApiResponse.<List<CategoryResponse>>builder()
-                .code(HttpStatus.OK.value())
-                .message(HttpStatus.OK.getReasonPhrase())
-                .result(categoryService.findByName(name))
-                .build();
     }
 
     @PutMapping("/{id}")
