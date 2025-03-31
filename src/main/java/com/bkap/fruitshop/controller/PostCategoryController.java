@@ -31,7 +31,7 @@ public class PostCategoryController {
         return ApiResponse.<List<PostCategoryResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(postCategoryService.findAll())
+                .result(responses)
                 .build();
     }
 

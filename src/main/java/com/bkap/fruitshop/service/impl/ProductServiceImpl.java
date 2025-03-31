@@ -149,4 +149,35 @@ public class ProductServiceImpl implements ProductService {
                 .map(product -> modelMapper.map(product, ProductResponse.class))
                 .toList();
     }
+
+    @Override
+    public List<ProductResponse> get8LatestProducts() {
+        List<Product> latestProducts = productRepository.findTop8ByOrderByCreatedAtDesc();
+
+        return latestProducts.stream()
+                .map((element) -> modelMapper.map(element, ProductResponse.class))
+                .toList();
+    }
+
+    //TODO
+    @Override
+    public void updateProductStatus(long id, String status) {
+
+    }
+
+    //TODO
+    @Override
+    public void updateProductQuantity(long id, int quantity) {
+
+    }
+    //TODO
+    @Override
+    public List<ProductResponse> getBestSellingProducts(int limit) {
+        return List.of();
+    }
+    //TODO
+    @Override
+    public List<ProductResponse> getDiscountedProducts() {
+        return List.of();
+    }
 }

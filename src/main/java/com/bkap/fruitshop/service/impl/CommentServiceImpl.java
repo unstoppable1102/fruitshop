@@ -105,6 +105,16 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.countByPostId(postId);
     }
 
+    @Override
+    public CommentResponse approveComment(long id, boolean isApproved) {
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
+
+        comment.setApproved(isApproved);
+        commentRepository.save(comment);
+        return mapToResponse(comment);
+    }
+
     private CommentResponse mapToResponse(Comment comment) {
         return CommentResponse.builder()
                 .id(comment.getId())

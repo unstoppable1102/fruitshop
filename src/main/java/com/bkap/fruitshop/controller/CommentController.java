@@ -7,6 +7,7 @@ import com.bkap.fruitshop.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -112,6 +113,17 @@ public class CommentController {
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
                 .result(commentService.countCommentsByPostId(postId))
+                .build();
+    }
+
+    @PatchMapping("/{commentId}/approve")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<CommentResponse> approveComment(@PathVariable Long commentId, @RequestParam boolean isApproved) {
+        CommentResponse commentResponse = commentService.approveComment(commentId, isApproved);
+        return ApiResponse.<CommentResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(commentResponse)
                 .build();
     }
 }

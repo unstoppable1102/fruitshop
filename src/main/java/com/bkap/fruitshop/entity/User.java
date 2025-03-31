@@ -34,6 +34,11 @@ public class User extends BaseModel{
 
     private boolean status;
 
+    private String avatar;
+
+    @Column(unique = true)
+    private String verificationToken;
+
     private Date birthday;
 
     @ManyToMany

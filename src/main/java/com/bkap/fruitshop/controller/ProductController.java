@@ -94,6 +94,16 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/latest-product")
+    public ApiResponse<List<ProductResponse>> getLatestProducts(){
+
+        return ApiResponse.<List<ProductResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(productService.get8LatestProducts())
+                .build();
+    }
+
     @GetMapping("/related/{productId}")
     public ApiResponse<List<ProductResponse>> getRelatedProducts(@PathVariable long productId){
 

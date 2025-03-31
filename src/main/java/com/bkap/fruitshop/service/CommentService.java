@@ -15,4 +15,5 @@ public interface CommentService {
     List<CommentResponse> findAllCommentsByPostId(long postId);
     List<CommentResponse> findAllCommentsByUserIdAndPostId(Long userId, long postId);
     long countCommentsByPostId(long postId);
+    CommentResponse approveComment(long id, boolean isApproved);
 }

@@ -27,8 +27,7 @@ public class PostController {
     @GetMapping
     public ApiResponse<PageResponse<PostResponse>> getAllPosts(
             @RequestParam(required = false) String keyword,
-            @PageableDefault(size = 2, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
-    ) {
+            @PageableDefault(size = 2, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
 
         return ApiResponse.<PageResponse<PostResponse>>builder()
                 .code(HttpStatus.OK.value())

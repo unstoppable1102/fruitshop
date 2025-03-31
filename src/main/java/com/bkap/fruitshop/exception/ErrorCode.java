@@ -43,6 +43,8 @@ public enum ErrorCode {
     INVALID_OLD_PASSWORD(1032, "The password is not correct", HttpStatus.BAD_REQUEST),
     EMAIL_ALREADY_EXISTED(1033, "Email has already existed", HttpStatus.BAD_REQUEST),
     ACCESS_DENIED(1034, "Access denied", HttpStatus.BAD_REQUEST),
+    ROLE_INVALID(1035, "Role name is invalid", HttpStatus.BAD_REQUEST),
+    TOKEN_EXPIRED(1036, "Token is expired", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

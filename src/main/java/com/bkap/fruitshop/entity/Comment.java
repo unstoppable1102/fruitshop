@@ -32,6 +32,8 @@ public class Comment extends BaseModel{
     @Column(name = "content", nullable = false, length = 500, columnDefinition = "TEXT")
     private String content;
 
+    private boolean isApproved = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;

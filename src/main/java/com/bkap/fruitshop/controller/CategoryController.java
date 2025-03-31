@@ -21,8 +21,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ApiResponse<List<CategoryResponse>> findAll(
-            @RequestParam(required = false) String name){
+    public ApiResponse<List<CategoryResponse>> findAll(@RequestParam(required = false) String name){
 
         List<CategoryResponse> responses = (name == null || name.isEmpty())
                 ? categoryService.findAll()

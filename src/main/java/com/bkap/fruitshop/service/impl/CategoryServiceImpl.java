@@ -51,9 +51,6 @@ public class CategoryServiceImpl implements CategoryService {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        if (!existingCategory.getName().equals(request.getName()) && categoryRepository.existsByName(request.getName())) {
-            throw new AppException(ErrorCode.CATEGORY_EXISTED);
-        }
         existingCategory.setName(request.getName());
         return modelMapper.map(categoryRepository.save(existingCategory), CategoryResponse.class);
     }

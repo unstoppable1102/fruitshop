@@ -21,6 +21,7 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<RoleResponse> createRole(@Valid @RequestBody RoleRequest request, BindingResult result) {
         if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors().stream()
@@ -36,7 +37,6 @@ public class RoleController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<List<RoleResponse>> getAllRoles() {
         try {
             return ApiResponse.<List<RoleResponse>>builder()
