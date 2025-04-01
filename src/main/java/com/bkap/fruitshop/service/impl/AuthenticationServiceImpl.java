@@ -36,7 +36,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthenticationServiceImpl implements AuthenticationService {
+public class  AuthenticationServiceImpl implements AuthenticationService {
 
     private final InvalidatedTokenRepository invalidatedTokenRepository;
     private final UserRepository userRepository;

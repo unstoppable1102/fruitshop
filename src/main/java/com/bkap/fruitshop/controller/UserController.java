@@ -34,7 +34,7 @@ public class UserController {
     @GetMapping
     public ApiResponse<PageResponse<UserResponse>> findAll(
             @RequestParam(required = false) String keyword,
-            @PageableDefault(size = 3, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+            @PageableDefault(size = 4, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
         return ApiResponse.<PageResponse<UserResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())

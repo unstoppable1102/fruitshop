@@ -79,7 +79,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse createProduct(ProductRequest request) {
-
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
@@ -108,9 +107,8 @@ public class ProductServiceImpl implements ProductService {
         //find product by id
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-
         product.setProductName(request.getProductName());
+        product.setStatus(request.isStatus());
         product.setPrice(request.getPrice());
         product.setPriceOld(request.getPriceOld());
         product.setQuantity(request.getQuantity());
@@ -153,7 +151,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> get8LatestProducts() {
         List<Product> latestProducts = productRepository.findTop8ByOrderByCreatedAtDesc();
-
         return latestProducts.stream()
                 .map((element) -> modelMapper.map(element, ProductResponse.class))
                 .toList();
@@ -170,11 +167,13 @@ public class ProductServiceImpl implements ProductService {
     public void updateProductQuantity(long id, int quantity) {
 
     }
+
     //TODO
     @Override
     public List<ProductResponse> getBestSellingProducts(int limit) {
         return List.of();
     }
+
     //TODO
     @Override
     public List<ProductResponse> getDiscountedProducts() {

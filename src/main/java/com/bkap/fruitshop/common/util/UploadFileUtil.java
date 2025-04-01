@@ -33,26 +33,22 @@ public class UploadFileUtil {
 
     }
 
-    public boolean deleteImage(String fileName) {
+    public void deleteImage(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
-            return false;
+            log.warn("Invalid file name provided for deletion");
+            throw new IllegalArgumentException("File name is null or empty");
         }
         try {
             Path filePath = uploadPath.resolve(fileName);
             if (!Files.exists(filePath)) {
                 log.warn("Image file not found: {}", fileName);
-                return false;
+                return;
             }
-            boolean deleted = Files.deleteIfExists(filePath);
-            if (deleted) {
-                log.info("Successfully deleted image: {}", fileName);
-            } else {
-                log.warn("Failed to delete image: {}", fileName);
-            }
-            return deleted;
+            Files.delete(filePath);
+            log.info("Successfully deleted image: {}", fileName);
         }catch (IOException e){
             log.error("Fail to delete image: {}", fileName, e);
-            return false;
+            throw new RuntimeException("Fail to delete image", e);
         }
     }
 }

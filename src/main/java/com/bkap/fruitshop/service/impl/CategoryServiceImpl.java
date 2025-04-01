@@ -38,12 +38,19 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponse save(CategoryRequest request) {
-        if (categoryRepository.existsByName(request.getName())) {
+        if (request.getName() == null || request.getName().isEmpty()) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
+        }
+
+        String normalizedName = request.getName().trim().toLowerCase();
+        if (categoryRepository.existsByNameIgnoreCase(normalizedName)) {
             throw new AppException(ErrorCode.CATEGORY_EXISTED);
         }
+
         Category category = modelMapper.map(request, Category.class);
-        category = categoryRepository.save(category);
-        return modelMapper.map(category, CategoryResponse.class);
+        category.setName(request.getName().trim());
+        category.setStatus(request.isStatus());
+        return modelMapper.map(categoryRepository.save(category), CategoryResponse.class);
     }
 
     @Override
@@ -51,7 +58,16 @@ public class CategoryServiceImpl implements CategoryService {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
-        existingCategory.setName(request.getName());
+        String normalizedName = request.getName().trim().toLowerCase();
+
+        if (!existingCategory.getName().equalsIgnoreCase(normalizedName)
+                && categoryRepository.existsByNameIgnoreCase(normalizedName)) {
+            throw new AppException(ErrorCode.CATEGORY_EXISTED);
+        }
+
+        // Cập nhật dữ liệu
+        existingCategory.setName(request.getName().trim());
+        existingCategory.setStatus(request.isStatus());
         return modelMapper.map(categoryRepository.save(existingCategory), CategoryResponse.class);
     }
 
@@ -70,7 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryResponse> findByName(String name) {
         List<Category> categoryList = categoryRepository.findByNameContainingIgnoreCase(name);
         return categoryList.stream()
-                .map((element) -> modelMapper.map(element, CategoryResponse.class))
-                .collect(Collectors.toList());
+                .map(c -> modelMapper.map(c, CategoryResponse.class))
+                .toList();
     }
 }

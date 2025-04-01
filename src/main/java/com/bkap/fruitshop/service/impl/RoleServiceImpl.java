@@ -48,6 +48,7 @@ public class RoleServiceImpl implements RoleService {
 
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public RoleResponse create(RoleRequest request) {
         if (roleRepository.existsByName(request.getName())) {
             throw new AppException(ErrorCode.ROLE_EXISTED);
@@ -59,6 +60,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(String roleName) {
         Role existingRole = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));

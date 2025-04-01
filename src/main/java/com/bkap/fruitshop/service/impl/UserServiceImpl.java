@@ -59,6 +59,7 @@ public class UserServiceImpl implements UserService {
         Role userRole = roleRepository.findByName("USER")
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
         user.setRoles(Set.of(userRole));
+        user.setAvatar("user.png");
         user.setStatus(true);
         // Lưu người dùng vào database
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -196,7 +197,7 @@ public class UserServiceImpl implements UserService {
 
         User updatedUser = userRepository.save(user);
         // Chuyển đổi User -> UserResponse
-        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
+        UserResponse userResponse = modelMapper.map(updatedUser, UserResponse.class);
 
         // Thêm danh sách roleNames vào response
         userResponse.setRoles(roles.stream()

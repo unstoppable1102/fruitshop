@@ -21,7 +21,6 @@ public class PostCategoryServiceImpl implements PostCategoryService {
 
     private final PostCategoryRepository postCategoryRepository;
     private final ModelMapper modelMapper;
-    private final PostRepository postRepository;
 
     @Override
     public List<PostCategoryResponse> findAll() {
@@ -73,6 +72,7 @@ public class PostCategoryServiceImpl implements PostCategoryService {
 
         // Cập nhật dữ liệu
         existingPostCategory.setName(request.getName().trim());
+        existingPostCategory.setActive(request.isActive());
         existingPostCategory.setDescription(request.getDescription() != null ? request.getDescription().trim() : "");
 
         return modelMapper.map(postCategoryRepository.save(existingPostCategory), PostCategoryResponse.class);
