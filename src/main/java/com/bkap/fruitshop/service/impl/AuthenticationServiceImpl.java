@@ -1,5 +1,6 @@
 package com.bkap.fruitshop.service.impl;
 
+import com.bkap.fruitshop.common.util.TokenType;
 import com.bkap.fruitshop.dto.request.IntrospectRequest;
 import com.bkap.fruitshop.dto.request.LoginRequest;
 import com.bkap.fruitshop.dto.request.LogoutRequest;
@@ -73,7 +74,7 @@ public class  AuthenticationServiceImpl implements AuthenticationService {
         boolean isValid = true;
 
         try {
-            verifyToken(token,false);
+            verifyToken(token,TokenType.ACCESS_TOKEN);
         }catch (AppException e){
             isValid = false;
         }
@@ -87,7 +88,7 @@ public class  AuthenticationServiceImpl implements AuthenticationService {
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
 
         try {
-            var signToken = verifyToken(request.getToken(), true);
+            var signToken = verifyToken(request.getToken(), TokenType.REFRESH_TOKEN);
             String jit = signToken.getJWTClaimsSet().getJWTID();
             Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
 
@@ -104,7 +105,7 @@ public class  AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse refreshToken(RefreshRequest request) throws JOSEException, ParseException {
-        var signedJWT = verifyToken(request.getToken(), true);
+        var signedJWT = verifyToken(request.getToken(), TokenType.REFRESH_TOKEN);
 
         var jti = signedJWT.getJWTClaimsSet().getJWTID();
         var expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
@@ -150,12 +151,12 @@ public class  AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    private SignedJWT verifyToken(String token, boolean isRefresh) throws ParseException, JOSEException {
+    private SignedJWT verifyToken(String token, TokenType type) throws ParseException, JOSEException {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token);
 
-        Date expirationTime =(isRefresh)
+        Date expirationTime = (type == TokenType.REFRESH_TOKEN)
                 ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
                     .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
                 : signedJWT.getJWTClaimsSet().getExpirationTime();

@@ -6,7 +6,6 @@ import com.bkap.fruitshop.entity.PostCategory;
 import com.bkap.fruitshop.exception.AppException;
 import com.bkap.fruitshop.exception.ErrorCode;
 import com.bkap.fruitshop.repository.PostCategoryRepository;
-import com.bkap.fruitshop.repository.PostRepository;
 import com.bkap.fruitshop.service.PostCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

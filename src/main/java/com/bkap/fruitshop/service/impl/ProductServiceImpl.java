@@ -134,6 +134,7 @@ public class ProductServiceImpl implements ProductService {
             uploadFileUtil.deleteImage(product.getImage());
         }
         productRepository.delete(product);
+        
 
     }
 
@@ -177,6 +178,10 @@ public class ProductServiceImpl implements ProductService {
     //TODO
     @Override
     public List<ProductResponse> getDiscountedProducts() {
-        return List.of();
+        List<Product> discountedProducts = productRepository.findByPriceOldGreaterThanPrice();
+        // Chuyển đổi sang ProductResponse sử dụng ModelMapper
+        return discountedProducts.stream()
+                .map(product -> modelMapper.map(product, ProductResponse.class))
+                .toList();
     }
 }

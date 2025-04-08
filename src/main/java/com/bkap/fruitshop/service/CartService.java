@@ -14,4 +14,5 @@ public interface CartService {
     void clearCart(Long userId);
     int countCartItem(Long userId);
     double getTotalPrice(Long userId);
+
 }

@@ -3,6 +3,7 @@ package com.bkap.fruitshop.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.*;
 
 @Entity
@@ -11,7 +12,7 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User extends BaseModel{
+public class User extends BaseModel implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

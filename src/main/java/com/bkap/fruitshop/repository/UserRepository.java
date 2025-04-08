@@ -13,7 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     boolean existsByRoles_Id(Long roleId);
-    Page<User> findAll(Pageable pageable);
     Page<User> findUsersByUsernameContainingIgnoreCase(String keyword, Pageable pageable);
     Optional<User> findByVerificationToken(String verificationToken);
 }

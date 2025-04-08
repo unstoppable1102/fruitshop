@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
@@ -15,4 +17,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Page<Product> findByCategoryIdAndPriceBetween(Long categoryId, Double minPrice, Double maxPrice, Pageable pageable);
     List<Product> findByCategoryIdAndIdNot(Long categoryId, Long id);
     List<Product> findTop8ByOrderByCreatedAtDesc();
+    @Query("SELECT p FROM Product p WHERE p.priceOld > p.price AND p.priceOld IS NOT NULL")
+    List<Product> findByPriceOldGreaterThanPrice();
 }
