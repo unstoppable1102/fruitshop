@@ -17,7 +17,7 @@ public interface ProductService {
     void deleteProduct(long id);
     List<ProductResponse> getRelatedProducts(Long id);
     List<ProductResponse> get8LatestProducts();
-    void updateProductStatus(long id, String status);
+    void updateProductStatus(long id, boolean status);
     void updateProductQuantity(long id, int quantity);
     List<ProductResponse> getBestSellingProducts(int limit);
     List<ProductResponse> getDiscountedProducts();

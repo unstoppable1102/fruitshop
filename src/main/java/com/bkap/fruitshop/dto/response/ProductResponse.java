@@ -20,4 +20,6 @@ public class ProductResponse {
     private String image;
     private String categoryName; // Để hiển thị tên danh mục nếu cần
 
+    private int soldQuantity;
+
 }

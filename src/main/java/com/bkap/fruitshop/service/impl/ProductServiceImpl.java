@@ -9,16 +9,20 @@ import com.bkap.fruitshop.entity.Product;
 import com.bkap.fruitshop.exception.AppException;
 import com.bkap.fruitshop.exception.ErrorCode;
 import com.bkap.fruitshop.repository.CategoryRepository;
+import com.bkap.fruitshop.repository.OrderItemRepository;
 import com.bkap.fruitshop.repository.ProductRepository;
 import com.bkap.fruitshop.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +32,7 @@ public class ProductServiceImpl implements ProductService {
     private final ModelMapper modelMapper;
     private final CategoryRepository categoryRepository;
     private final UploadFileUtil uploadFileUtil;
+    private final OrderItemRepository orderItemRepository;
 
     @Override
     public PageResponse<ProductResponse> getAllProducts(String keyword, Double minPrice, Double maxPrice, Pageable pageable) {
@@ -159,20 +164,59 @@ public class ProductServiceImpl implements ProductService {
 
     //TODO
     @Override
-    public void updateProductStatus(long id, String status) {
+    public void updateProductStatus(long id, boolean status) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
+        product.setStatus(status);
+        productRepository.save(product);
     }
 
     //TODO
     @Override
     public void updateProductQuantity(long id, int quantity) {
-
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        if (quantity < 0){
+            throw new RuntimeException("Quantity must be greater than zero");
+        }
+        int oldQuantity = product.getQuantity();
+        product.setQuantity(oldQuantity + quantity);
+        productRepository.save(product);
     }
 
     //TODO
     @Override
     public List<ProductResponse> getBestSellingProducts(int limit) {
-        return List.of();
+        Pageable pageable = PageRequest.of(0, limit);
+        List<Object[]> bestSellingData = orderItemRepository.findBestSellingProductIds(pageable);
+
+        List<Long> productIds = bestSellingData.stream()
+                .map(row -> (Long) row[0])
+                .toList();
+
+        List<Product> products = productRepository.findAllById(productIds);
+
+        //Map sản phẩm theo id
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, p -> p));
+
+        return bestSellingData.stream()
+                .map(row -> {
+                    Long productId = (Long) row[0];
+                    Long soldQuantity = (Long) row[1];
+                    Product product = productMap.get(productId);
+
+                    ProductResponse productResponse = modelMapper.map(product, ProductResponse.class);
+                    productResponse.setSoldQuantity(soldQuantity.intValue());
+
+                    // Nếu muốn set thêm categoryName/categoryId:
+                    if (product.getCategory() != null) {
+                        productResponse.setCategoryName(product.getCategory().getName());
+                    }
+                    return productResponse;
+                }).toList();
+
     }
 
     //TODO
