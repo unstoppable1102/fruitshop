@@ -59,20 +59,40 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PageResponse<ProductResponse> getProductsByCategory(Long categoryId, String keyword, Double minPrice, Double maxPrice, Pageable pageable) {
-        Page<Product> productPage;
+        Specification<Product> spec = Specification.where((root, criteriaQuery, cb) ->
+            cb.equal(root.get("category").get("id"), categoryId));
+
         if (keyword != null && !keyword.trim().isEmpty()) {
-            productPage = productRepository.findByCategoryIdAndProductNameContainingIgnoreCase(categoryId, keyword, pageable);
-        }else if (minPrice != null && maxPrice != null) {
-            productPage = productRepository.findByCategoryIdAndPriceBetween(categoryId, minPrice, maxPrice, pageable);
-        }else {
-            productPage = productRepository.findByCategoryId(categoryId, pageable);
+            spec = spec.and((root, criteriaQuery, cb) ->
+                    cb.like(cb.lower(root.get("productName")), "%" + keyword.toLowerCase() + "%"));
         }
 
+        if (minPrice != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.greaterThanOrEqualTo(root.get("price"), minPrice)
+            );
+        }
+
+        if (maxPrice != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.lessThanOrEqualTo(root.get("price"), maxPrice)
+            );
+        }
+
+        Page<Product> productPage = productRepository.findAll(spec, pageable);
         List<ProductResponse> productResponses = productPage.getContent().stream()
-                .map(product -> modelMapper.map(product, ProductResponse.class))
+                .map((product) -> modelMapper.map(product, ProductResponse.class))
                 .toList();
-        return new PageResponse<>(productPage.getNumber(), productPage.getSize(),
-                productPage.getTotalElements(), productPage.getTotalPages(), productPage.isLast(), productResponses);
+
+        return new PageResponse<>(
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages(),
+                productPage.isLast(),
+                productResponses
+        );
+
     }
 
     @Override
@@ -178,7 +198,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         if (quantity < 0){
-            throw new RuntimeException("Quantity must be greater than zero");
+            throw new AppException(ErrorCode.INVALID_QUANTITY);
         }
         int oldQuantity = product.getQuantity();
         product.setQuantity(oldQuantity + quantity);

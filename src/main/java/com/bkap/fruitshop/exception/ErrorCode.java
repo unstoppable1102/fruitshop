@@ -45,6 +45,7 @@ public enum ErrorCode {
     ACCESS_DENIED(1034, "Access denied", HttpStatus.BAD_REQUEST),
     ROLE_INVALID(1035, "Role name is invalid", HttpStatus.BAD_REQUEST),
     TOKEN_EXPIRED(1036, "Token is expired", HttpStatus.BAD_REQUEST),
+    INVALID_QUANTITY(1037, "Quantity must be greater than zero", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
