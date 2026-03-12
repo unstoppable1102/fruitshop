@@ -10,7 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -26,16 +26,14 @@ public abstract class BaseModel {
 
     @Column(name = "created_at")
     @JsonIgnore
-    @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp
-    protected Date createdAt;
+    protected LocalDateTime createdAt;
 
     @Column(name = "updated_by", length = 50)
     @JsonIgnore
     protected String updatedBy;
 
     @Column(name = "updated_at")
-    @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
-    protected Date updatedAt;
+    protected LocalDateTime updatedAt;
 }
