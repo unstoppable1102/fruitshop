@@ -10,9 +10,12 @@ import com.bkap.fruitshop.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.bkap.fruitshop.common.util.MessageUtils.getMessage;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +25,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
-    public CategoryResponse findById(long id) {
+    public CategoryResponse findById(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
         return modelMapper.map(category, CategoryResponse.class);
@@ -54,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse update(long id, CategoryRequest request) {
+    public CategoryResponse update(Long id, CategoryRequest request) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
@@ -72,7 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 

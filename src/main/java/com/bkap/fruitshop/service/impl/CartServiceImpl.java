@@ -35,7 +35,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartResponse addToCart(CartRequest request) {
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         Cart cart = cartRepository.findByUserId(request.getUserId())
                 .orElseGet(() -> {

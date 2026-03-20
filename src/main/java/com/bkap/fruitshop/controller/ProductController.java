@@ -40,7 +40,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ApiResponse<PageResponse<ProductResponse>> findAllProducts(
+    public ApiResponse<PageResponse<ProductResponse>> getAllProducts(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
@@ -94,7 +94,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/latest-product")
+    @GetMapping("/latest-products")
     public ApiResponse<List<ProductResponse>> getLatestProducts(){
 
         return ApiResponse.<List<ProductResponse>>builder()
@@ -115,7 +115,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<ProductResponse> updateProduct(@Valid @PathVariable long id, @ModelAttribute ProductRequest request, BindingResult result){
+    public ApiResponse<ProductResponse> updateProduct(@PathVariable long id, @Valid @ModelAttribute ProductRequest request, BindingResult result){
         if(result.hasErrors()){
             List<String> errorMessages = result.getFieldErrors().stream()
                     .map(FieldError::getDefaultMessage)

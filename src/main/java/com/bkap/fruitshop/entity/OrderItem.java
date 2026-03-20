@@ -1,10 +1,7 @@
 package com.bkap.fruitshop.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -12,6 +9,7 @@ import lombok.Setter;
 @Table(name = "order_items")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class OrderItem extends BaseModel{
 
     @Id

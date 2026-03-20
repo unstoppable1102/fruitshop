@@ -12,6 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoleResponse {
+
     private String name;
     private String description;
     private Set<UserResponse> users;

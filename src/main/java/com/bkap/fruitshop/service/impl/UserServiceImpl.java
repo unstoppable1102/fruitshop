@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
        User byUsername = userRepository.findByUsername(name)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         UserResponse userResponse = modelMapper.map(byUsername, UserResponse.class);
         // Thêm danh sách roles vào response
         userResponse.setRoles(byUsername.getRoles().stream()

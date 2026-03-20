@@ -10,6 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WishlistResponse {
+
     private long id;
     private long productId;
     private String productName;

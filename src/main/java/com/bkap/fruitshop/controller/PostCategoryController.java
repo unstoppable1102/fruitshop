@@ -21,8 +21,7 @@ public class PostCategoryController {
     private final PostCategoryService postCategoryService;
 
     @GetMapping
-    public ApiResponse<List<PostCategoryResponse>> getAllPostCategories(
-            @RequestParam(required = false) String name) {
+    public ApiResponse<List<PostCategoryResponse>> getAllPostCategories(@RequestParam(required = false) String name) {
 
         List<PostCategoryResponse> responses = (name == null || name.trim().isEmpty())
                 ? postCategoryService.findAll()

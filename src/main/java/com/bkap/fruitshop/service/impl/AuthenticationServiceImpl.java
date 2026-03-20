@@ -1,6 +1,6 @@
 package com.bkap.fruitshop.service.impl;
 
-import com.bkap.fruitshop.common.util.TokenType;
+import com.bkap.fruitshop.common.enums.TokenType;
 import com.bkap.fruitshop.dto.request.IntrospectRequest;
 import com.bkap.fruitshop.dto.request.LoginRequest;
 import com.bkap.fruitshop.dto.request.LogoutRequest;
@@ -58,7 +58,7 @@ public class  AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public AuthenticationResponse authenticate(LoginRequest request) {
         var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);
         var token = generateToken(user);
@@ -118,7 +118,7 @@ public class  AuthenticationServiceImpl implements AuthenticationService {
 
         var username = signedJWT.getJWTClaimsSet().getSubject();
         var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         var token = generateToken(user);
 

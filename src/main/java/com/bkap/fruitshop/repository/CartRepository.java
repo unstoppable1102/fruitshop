@@ -7,5 +7,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
+
    Optional<Cart> findByUserId(@Param("userId") long userId);
 }

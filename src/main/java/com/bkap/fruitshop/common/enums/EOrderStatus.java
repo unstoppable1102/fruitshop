@@ -1,4 +1,4 @@
-package com.bkap.fruitshop.common.util;
+package com.bkap.fruitshop.common.enums;
 
 import com.bkap.fruitshop.exception.AppException;
 import com.bkap.fruitshop.exception.ErrorCode;

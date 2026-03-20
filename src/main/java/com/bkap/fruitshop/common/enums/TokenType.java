@@ -1,4 +1,4 @@
-package com.bkap.fruitshop.common.util;
+package com.bkap.fruitshop.common.enums;
 
 public enum TokenType {
     ACCESS_TOKEN,

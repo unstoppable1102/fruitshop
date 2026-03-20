@@ -18,6 +18,9 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect
+  messages:
+    basename: messages
+    encoding: UTF-8
 server:
   port: 8888
 

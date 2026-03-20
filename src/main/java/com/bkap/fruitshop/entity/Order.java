@@ -1,11 +1,8 @@
 package com.bkap.fruitshop.entity;
 
-import com.bkap.fruitshop.common.util.EOrderStatus;
+import com.bkap.fruitshop.common.enums.EOrderStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.ArrayList;
@@ -18,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "orders")
+@Builder
 public class Order extends BaseModel{
 
     @Id

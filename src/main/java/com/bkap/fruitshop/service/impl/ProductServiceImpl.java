@@ -243,6 +243,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> getDiscountedProducts() {
         List<Product> discountedProducts = productRepository.findByPriceOldGreaterThanPrice();
+
         // Chuyển đổi sang ProductResponse sử dụng ModelMapper
         return discountedProducts.stream()
                 .map(product -> modelMapper.map(product, ProductResponse.class))

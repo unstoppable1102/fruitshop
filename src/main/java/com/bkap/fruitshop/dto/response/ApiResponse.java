@@ -3,6 +3,8 @@ package com.bkap.fruitshop.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -12,10 +14,11 @@ import lombok.*;
 public class ApiResponse<T> {
     private int code;
     private String message;
+    private List<String> errors;
     private T result;
 
     // Factory method for error case.
     public static <T> ApiResponse<T> errorResponse(int code, String message) {
-        return new ApiResponse<>(code, message, null);
+        return new ApiResponse<>(code, message, null, null);
     }
 }

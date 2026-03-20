@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
+
     @Query("SELECT oi.product.id, SUM(oi.quantity) as totalSold " +
             "FROM OrderItem oi " +
             "GROUP BY oi.product.id " +

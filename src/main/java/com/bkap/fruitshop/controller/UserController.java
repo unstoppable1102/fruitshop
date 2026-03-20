@@ -69,7 +69,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/getMyInfo")
+    @GetMapping("/get-my-info")
     public ApiResponse<UserResponse> getMyInfo(){
         try {
             return ApiResponse.<UserResponse>builder()

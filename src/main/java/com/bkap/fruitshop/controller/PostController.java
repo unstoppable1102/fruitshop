@@ -65,7 +65,7 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<PostResponse> updatePost(@Valid @PathVariable Long id, @ModelAttribute PostRequest request, BindingResult result){
+    public ApiResponse<PostResponse> updatePost(@PathVariable Long id, @Valid @ModelAttribute PostRequest request, BindingResult result){
         if (result.hasErrors()) {
             List<String> errorMessages = result.getFieldErrors().stream()
                     .map(FieldError::getDefaultMessage)

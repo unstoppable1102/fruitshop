@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PageResponse<T> {
+
     private int currentPage;      // Trang hiện tại
     private int pageSize;         // Số phần tử trên mỗi trang
     private long totalElements;   // Tổng số phần tử

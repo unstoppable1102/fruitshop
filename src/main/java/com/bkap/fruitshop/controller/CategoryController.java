@@ -34,13 +34,8 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ApiResponse<CategoryResponse> create(@Valid @RequestBody CategoryRequest request, BindingResult result){
-        if(result.hasErrors()){
-            List<String> errorMessages = result.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
-        }
+    public ApiResponse<CategoryResponse> create(@Valid @RequestBody CategoryRequest request){
+
             return ApiResponse.<CategoryResponse>builder()
                     .code(HttpStatus.CREATED.value())
                     .message(HttpStatus.CREATED.getReasonPhrase())
@@ -63,7 +58,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<CategoryResponse> update(@Valid @PathVariable long id, @RequestBody CategoryRequest request, BindingResult result){
+    public ApiResponse<CategoryResponse> update(@PathVariable long id, @Valid @RequestBody CategoryRequest request, BindingResult result){
         if(result.hasErrors()){
             List<String> errorMessages = result.getFieldErrors().stream()
                     .map(FieldError::getDefaultMessage)
@@ -82,7 +77,7 @@ public class CategoryController {
         try {
             categoryService.delete(id);
             return ApiResponse.<Void>builder()
-                    .code(HttpStatus.OK.value())
+                    .code(HttpStatus.NO_CONTENT.value())
                     .message("Category is deleted successfully!")
                     .build();
         }catch (Exception e){

@@ -1,6 +1,6 @@
 package com.bkap.fruitshop.dto.response;
 
-import com.bkap.fruitshop.common.util.EOrderStatus;
+import com.bkap.fruitshop.common.enums.EOrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
