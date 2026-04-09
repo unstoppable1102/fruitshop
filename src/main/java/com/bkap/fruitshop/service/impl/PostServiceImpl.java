@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PageResponse<PostResponse> findAll(String keyword, Pageable pageable) {
         Page<Post> postPage;
-        if (keyword != null && !keyword.trim().isEmpty()) {
+        if (StringUtils.hasText(keyword)) {
             postPage = postRepository.findByTitleContainingIgnoreCase(keyword, pageable);
         }else {
             postPage = postRepository.findAll(pageable);

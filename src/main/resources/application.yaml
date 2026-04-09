@@ -28,3 +28,6 @@ jwt:
   signerKey: "tpuZpfE3OR658a//S9cp9TKhlea2xJmtxkqRLG6NOYUI7iib4UCU1YoGfaX3FB1e"
   valid-duration: 3600 #second
   refreshable-duration: 360000 #seconds
+
+app:
+  reset-password-url: "https://your-app.com"

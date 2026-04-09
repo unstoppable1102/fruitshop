@@ -14,6 +14,7 @@ import com.bkap.fruitshop.service.WishlistService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,7 +37,9 @@ public class WishlistServiceImpl implements WishlistService {
 
 
     @Override
+    @Transactional
     public WishlistResponse save(WishlistRequest request) {
+
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -47,13 +50,13 @@ public class WishlistServiceImpl implements WishlistService {
         return wishlistRepository.findByUserIdAndProductId(request.getUserId(), request.getProductId())
                 .map(existingWishlist -> modelMapper.map(existingWishlist, WishlistResponse.class))
                 .orElseGet(() -> {
-                    Wishlist wishlist = new Wishlist();
-                    wishlist.setUser(user);
-                    wishlist.setProduct(product);
-                    wishlist.setPrice(product.getPrice());
+                    Wishlist wishlist = Wishlist.builder()
+                            .user(user)
+                            .product(product)
+                            .price(product.getPrice())
+                            .build();
 
-                    Wishlist saved = wishlistRepository.save(wishlist);
-                    return modelMapper.map(saved, WishlistResponse.class);
+                    return modelMapper.map(wishlistRepository.save(wishlist), WishlistResponse.class);
                 });
     }
 

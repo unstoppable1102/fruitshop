@@ -19,9 +19,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -104,6 +106,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse createProduct(ProductRequest request) {
+
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
@@ -111,13 +114,16 @@ public class ProductServiceImpl implements ProductService {
             throw new AppException(ErrorCode.PRODUCT_EXISTED);
         }
 
-        Product product = modelMapper.map(request, Product.class);
-        product.setCategory(category);
-        product.setId(null);
-
-        //Xu ly lưu file ảnh
-        String imagePath = uploadFileUtil.saveImage(request.getImage());
-        product.setImage(imagePath);
+        Product product = Product.builder()
+                .productName(request.getProductName())
+                .status(request.isStatus())
+                .price(request.getPrice())
+                .priceOld(request.getPriceOld())
+                .quantity(request.getQuantity())
+                .description(request.getDescription())
+                .category(category)
+                .image(uploadFileUtil.saveImage(request.getImage()))
+                .build();
 
         return modelMapper.map(productRepository.save(product), ProductResponse.class);
     }
@@ -130,24 +136,26 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         //find product by id
-        Product product = productRepository.findById(id)
+        Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        product.setProductName(request.getProductName());
-        product.setStatus(request.isStatus());
-        product.setPrice(request.getPrice());
-        product.setPriceOld(request.getPriceOld());
-        product.setQuantity(request.getQuantity());
-        product.setDescription(request.getDescription());
-        product.setCategory(category);
 
-        if (request.getImage() != null && !request.getImage().isEmpty()) {
-            //save image into folder
-            String imagePath = uploadFileUtil.saveImage(request.getImage());
-            product.setImage(imagePath);
-        }
+        String imagePath = (request.getImage() != null && !request.getImage().isEmpty())
+                ? uploadFileUtil.saveImage(request.getImage())
+                : existingProduct.getImage();
 
-        Product updatedProduct = productRepository.save(product);
-        return modelMapper.map(updatedProduct, ProductResponse.class);
+        Product updatedProduct = Product.builder()
+                .id(existingProduct.getId())
+                .productName(request.getProductName())
+                .status(request.isStatus())
+                .price(request.getPrice())
+                .priceOld(request.getPriceOld())
+                .quantity(request.getQuantity())
+                .description(request.getDescription())
+                .category(category)
+                .image(imagePath)
+                .build();
+
+        return modelMapper.map(productRepository.save(updatedProduct), ProductResponse.class);
     }
 
     @Override
@@ -159,18 +167,18 @@ public class ProductServiceImpl implements ProductService {
             uploadFileUtil.deleteImage(product.getImage());
         }
         productRepository.delete(product);
-        
 
     }
 
     @Override
     public List<ProductResponse> getRelatedProducts(Long id) {
+
         Product currentProduct = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        List <Product> relatedProducts = productRepository.findByCategoryIdAndIdNot(currentProduct.getCategory().getId(), id);
+        List <Product> relatedProducts = productRepository.findTop8ByCategoryIdAndIdNot(currentProduct.getCategory().getId(), id);
         return relatedProducts.stream()
-                .map(product -> modelMapper.map(product, ProductResponse.class))
+                .map(this::toProductResponse)
                 .toList();
     }
 
@@ -178,12 +186,13 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> get8LatestProducts() {
         List<Product> latestProducts = productRepository.findTop8ByOrderByCreatedAtDesc();
         return latestProducts.stream()
-                .map((element) -> modelMapper.map(element, ProductResponse.class))
+                .map(this::toProductResponse)
                 .toList();
     }
 
     //TODO
     @Override
+    @Transactional
     public void updateProductStatus(long id, boolean status) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -194,10 +203,11 @@ public class ProductServiceImpl implements ProductService {
 
     //TODO
     @Override
+    @Transactional
     public void updateProductQuantity(long id, int quantity) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-        if (quantity < 0){
+        if (quantity <= 0){
             throw new AppException(ErrorCode.INVALID_QUANTITY);
         }
         int oldQuantity = product.getQuantity();
@@ -224,18 +234,16 @@ public class ProductServiceImpl implements ProductService {
         return bestSellingData.stream()
                 .map(row -> {
                     Long productId = (Long) row[0];
-                    Long soldQuantity = (Long) row[1];
                     Product product = productMap.get(productId);
+                    if (product == null) return null;
 
                     ProductResponse productResponse = modelMapper.map(product, ProductResponse.class);
-                    productResponse.setSoldQuantity(soldQuantity.intValue());
+                    productResponse.setSoldQuantity(((Long) row[1]).intValue());
 
-                    // Nếu muốn set thêm categoryName/categoryId:
-                    if (product.getCategory() != null) {
-                        productResponse.setCategoryName(product.getCategory().getName());
-                    }
                     return productResponse;
-                }).toList();
+                })
+                .filter(Objects::nonNull)
+                .toList();
 
     }
 
@@ -246,7 +254,17 @@ public class ProductServiceImpl implements ProductService {
 
         // Chuyển đổi sang ProductResponse sử dụng ModelMapper
         return discountedProducts.stream()
-                .map(product -> modelMapper.map(product, ProductResponse.class))
+                .map(this::toProductResponse)
                 .toList();
+    }
+
+    private ProductResponse toProductResponse(Product product) {
+
+        ProductResponse response = modelMapper.map(product, ProductResponse.class);
+
+        if (product.getCategory() != null) {
+            response.setCategoryName(product.getCategory().getName());
+        }
+        return response;
     }
 }

@@ -1,5 +1,6 @@
 package com.bkap.fruitshop.configuration;
 
+import com.bkap.fruitshop.common.util.Const;
 import com.bkap.fruitshop.entity.Role;
 import com.bkap.fruitshop.entity.User;
 import com.bkap.fruitshop.repository.RoleRepository;
@@ -25,8 +26,8 @@ public class ApplicationInitConfig {
         return args -> {
             if (userRepository.findByUsername("admin").isEmpty()){
                 // Tìm role "ADMIN" hoặc tạo mới nếu chưa tồn tại
-                Role adminRole = roleRepository.findByName("ADMIN")
-                        .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
+                Role adminRole = roleRepository.findByName(Const.ADMIN)
+                        .orElseGet(() -> roleRepository.save(new Role(Const.ADMIN)));
                 // Tạo danh sách roles
                 Set<Role> roles = Set.of(adminRole);
                 User adminUser = User.builder()

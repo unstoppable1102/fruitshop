@@ -10,7 +10,7 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
     boolean existsByProductName(String productName);
-    List<Product> findByCategoryIdAndIdNot(Long categoryId, Long id);
+    List<Product> findTop8ByCategoryIdAndIdNot(Long categoryId, Long id);
     List<Product> findTop8ByOrderByCreatedAtDesc();
 
     @Query("SELECT p FROM Product p WHERE p.priceOld > p.price AND p.priceOld IS NOT NULL")

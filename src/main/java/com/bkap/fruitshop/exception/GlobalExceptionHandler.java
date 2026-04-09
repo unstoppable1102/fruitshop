@@ -24,7 +24,7 @@ public class GlobalExceptionHandler extends RuntimeException{
         return ResponseEntity.status(errorCode.getStatusCode())
                 .body(ApiResponse.<Void>builder()
                         .code(errorCode.getCode())
-                        .message(errorCode.getMessage())
+                        .message(errorCode.getMessageKey())
                         .build());
     }
 
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler extends RuntimeException{
         return ResponseEntity.status(errorCode.getStatusCode())
                 .body(ApiResponse.<Void>builder()
                         .code(errorCode.getCode())
-                        .message(errorCode.getMessage())
+                        .message(errorCode.getMessageKey())
                         .build());
     }
 

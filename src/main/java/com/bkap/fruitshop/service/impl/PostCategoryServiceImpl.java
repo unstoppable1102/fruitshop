@@ -10,6 +10,7 @@ import com.bkap.fruitshop.service.PostCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ public class PostCategoryServiceImpl implements PostCategoryService {
 
     @Override
     public PostCategoryResponse create(PostCategoryRequest request) {
-        if (request.getName() == null || request.getName().trim().isEmpty()) {
+        if (!StringUtils.hasText(request.getName())) {
             throw new AppException(ErrorCode.INVALID_REQUEST);
         }
         String normalizedName = request.getName().trim().toLowerCase();

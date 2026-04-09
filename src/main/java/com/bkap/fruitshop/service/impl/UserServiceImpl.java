@@ -1,5 +1,6 @@
 package com.bkap.fruitshop.service.impl;
 
+import com.bkap.fruitshop.common.util.Const;
 import com.bkap.fruitshop.common.util.UploadFileUtil;
 import com.bkap.fruitshop.dto.request.ResetPasswordRequest;
 import com.bkap.fruitshop.dto.request.RoleNameRequest;
@@ -12,6 +13,7 @@ import com.bkap.fruitshop.entity.Role;
 import com.bkap.fruitshop.entity.User;
 import com.bkap.fruitshop.exception.AppException;
 import com.bkap.fruitshop.exception.ErrorCode;
+import com.bkap.fruitshop.mapper.UserMapper;
 import com.bkap.fruitshop.repository.PasswordResetTokenRepository;
 import com.bkap.fruitshop.repository.RoleRepository;
 import com.bkap.fruitshop.repository.UserRepository;
@@ -19,19 +21,19 @@ import com.bkap.fruitshop.service.EmailService;
 import com.bkap.fruitshop.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,122 +47,119 @@ public class UserServiceImpl implements UserService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
     private final UploadFileUtil uploadFileUtil;
+    private final UserMapper userMapper;
+
+    @Value("${app.reset-password-url}")
+    private String resetBaseUrl;
 
 
     @Override
+    @Transactional
     public UserResponse save(UserRequest request) {
+
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
-        // Chuyển đổi từ UserRequestDto sang User entity
-        User user = modelMapper.map(request, User.class);
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTED);
+        }
 
         //set Role default is USER
-        Role userRole = roleRepository.findByName("USER")
+        Role userRole = roleRepository.findByName(Const.USER)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-        user.setRoles(Set.of(userRole));
-        user.setAvatar("user.png");
-        user.setStatus(true);
-        // Lưu người dùng vào database
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        User savedUser = userRepository.save(user);
+        User user = User.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .email(request.getEmail())
+                .fullName(request.getFullName())
+                .phone(request.getPhone())
+                .avatar("user.png")
+                .status(true)
+                .roles(Set.of(userRole))
+                .build();
 
         // Chuyển đổi từ User entity sang UserResponse
-        return modelMapper.map(savedUser, UserResponse.class);
+        return modelMapper.map(userRepository.save(user), UserResponse.class);
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public PageResponse<UserResponse> getAllUsers(String keyword, Pageable pageable) {
-        Page<User> userPage;
-        if (keyword != null && !keyword.isEmpty()) {
-            userPage = userRepository.findUsersByUsernameContainingIgnoreCase(keyword, pageable);
-        }else {
-            userPage = userRepository.findAll(pageable);
-        }
+
+        Page<User> userPage = userRepository.findUsersWithRoles(keyword, pageable);
 
         List<UserResponse> responses = userPage.getContent()
                 .stream()
-                .map(user ->{
-                    UserResponse userResponse = modelMapper.map(user, UserResponse.class);
-                    userResponse.setRoles(user.getRoles().stream()
-                            .map(Role::getName)
-                            .collect(Collectors.toSet())); // Thêm danh sách roleNames vào UserResponse
-                    return userResponse;
-                }).toList();
+                .map(this::toUserResponse)
+                .toList();
 
-        return new PageResponse<>(userPage.getNumber(), userPage.getSize(),
-                userPage.getTotalElements(), userPage.getTotalPages(), userPage.isLast(), responses);
+        return PageResponse.<UserResponse>builder()
+                .pageSize(userPage.getNumber())
+                .pageSize(userPage.getSize())
+                .totalElements(userPage.getTotalElements())
+                .totalPages(userPage.getTotalPages())
+                .isLast(userPage.isLast())
+                .content(responses)
+                .build();
     }
 
     @Override
-    @PreAuthorize("authentication.name == @userServiceImpl.findUsernameById(#id) || hasRole('ADMIN')")
+    @PostAuthorize("returnObject.username == authentication.name || hasRole('ADMIN')")
     public UserResponse getUserById(Long id) {
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
-        // Thêm danh sách roles vào response
-        userResponse.setRoles(user.getRoles().stream()
-                .map(Role::getName)
-                .collect(Collectors.toSet()));
-        return userResponse;
+
+        return userMapper.toResponse(user);
 
     }
 
     @Override
     public UserResponse getMyInfo() {
-        var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
-       User byUsername = userRepository.findByUsername(name)
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        UserResponse userResponse = modelMapper.map(byUsername, UserResponse.class);
-        // Thêm danh sách roles vào response
-        userResponse.setRoles(byUsername.getRoles().stream()
-                .map(Role::getName)
-                .collect(Collectors.toSet()));
-        return userResponse;
+
+        return userMapper.toResponse(user);
     }
 
     @Override
     @PreAuthorize("authentication.name != null && authentication.name == @userServiceImpl.findUsernameById(#id) || hasRole('ADMIN')")
     public UserResponse updateUser(Long id, UserUpdateInforRequest request) {
+
         // Tìm người dùng theo id
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        // Cập nhật thông tin từ request lên đối tượng user
-        user.setFullName(request.getFullName() != null ? request.getFullName() : user.getFullName());
+
         if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())){
             if (userRepository.existsByEmail(request.getEmail())){
                 throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTED);
             }
             user.setEmail(request.getEmail());
         }
-        user.setPhone(request.getPhone() != null ? request.getPhone() : user.getPhone());
-        user.setAddress(request.getAddress() != null ? request.getAddress() : user.getAddress());
-        user.setBirthday(request.getBirthday() != null ? request.getBirthday() : user.getBirthday());
 
-        // Lưu thay đổi vào database
-        User updatedUser = userRepository.save(user);
+        Optional.ofNullable(request.getFullName()).ifPresent(user::setFullName);
+        Optional.ofNullable(request.getPhone()).ifPresent(user::setPhone);
+        Optional.ofNullable(request.getAddress()).ifPresent(user::setAddress);
+        Optional.ofNullable(request.getBirthday()).ifPresent(user::setBirthday);
 
-        // Chuyển đổi thành UserResponse và thêm danh sách roles
-        UserResponse userResponse = modelMapper.map(updatedUser, UserResponse.class);
-        userResponse.setRoles(updatedUser.getRoles().stream()
-                .map(Role::getName) // Chuyển Role Enum thành String
-                .collect(Collectors.toSet()));
-
-        return userResponse;
+        return userMapper.toResponse(userRepository.save(user));
     }
 
+    @Transactional
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(Long id) {
+
         // Kiểm tra xem người dùng có tồn tại không
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         boolean isAdmin = user.getRoles().stream()
-                .anyMatch(role -> role.getName().equals("ADMIN"));
+                .anyMatch(role -> Const.ADMIN.equalsIgnoreCase(role.getName()));
 
         if (isAdmin) {
             throw new AppException(ErrorCode.CANNOT_DELETE_ADMIN);
@@ -177,54 +176,52 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUserRoles(Long userId, RoleNameRequest roleNames) {
-        if (roleNames == null && roleNames.getRoleNames().isEmpty()) {
+
+        if (roleNames == null || roleNames.getRoleNames().isEmpty()) {
             throw new AppException(ErrorCode.ROLE_INVALID);
         }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         // get roles
-        Set<Role> roles = new HashSet<>();
-            for (String roleName : roleNames.getRoleNames()) {
-                if (roleName == null || roleName.trim().isEmpty()) {
-                    throw new AppException(ErrorCode.ROLE_INVALID);
-                }
-                Role role = roleRepository.findByName(roleName.trim())
-                        .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-                roles.add(role);
-            }
+        Set<Role> roles = roleNames.getRoleNames().stream()
+                .filter(name -> name != null && !name.trim().isEmpty())
+                .map(name -> roleRepository.findByName(name.trim())
+                        .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND)))
+                .collect(Collectors.toSet());
+
+        if (roles.isEmpty()) throw new AppException(ErrorCode.ROLE_INVALID);
         user.setRoles(roles);
 
-        User updatedUser = userRepository.save(user);
-        // Chuyển đổi User -> UserResponse
-        UserResponse userResponse = modelMapper.map(updatedUser, UserResponse.class);
-
-        // Thêm danh sách roleNames vào response
-        userResponse.setRoles(roles.stream()
-                .map(Role::getName)
-                .collect(Collectors.toSet()));
-
-        return userResponse;
+        return userMapper.toResponse(userRepository.save(user));
     }
 
     //TODO
     @Override
     public void forgotPassword(String email) {
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        // Xóa token cũ nếu có
+        passwordResetTokenRepository.deleteByUser(user);
+
         String token = UUID.randomUUID().toString();
 
-        PasswordResetToken resetToken = new PasswordResetToken();
-        resetToken.setToken(token);
-        resetToken.setUser(user);
-        resetToken.setExpiryDate(LocalDateTime.now().plusHours(1));
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(LocalDateTime.now().plusHours(1))
+                .build();
         passwordResetTokenRepository.save(resetToken);
 
-        // Gửi email cho user
-        String resetLink = "https://your-app.com/reset-password?token=" + token;
-        emailService.sendEmail(user.getEmail(), "Password Reset Request",
-                "Click vào đường link sau để đặt lại mật khẩu: " + resetLink);
+        String resetLink = resetBaseUrl + "/reset-password?token=" + token;
+        emailService.sendEmail(
+                user.getEmail(),
+                "Password Reset Request",
+                "Click vào đường link sau để đặt lại mật khẩu: " + resetLink
+        );
     }
 
     //TODO
@@ -304,5 +301,13 @@ public class UserServiceImpl implements UserService {
         user.setVerificationToken(null);
         userRepository.save(user);
         return true;
+    }
+
+    private UserResponse toUserResponse(User user) {
+        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
+        userResponse.setRoles(user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet()));
+        return userResponse;
     }
 }
