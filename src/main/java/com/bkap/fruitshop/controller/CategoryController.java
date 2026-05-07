@@ -34,6 +34,7 @@ public class CategoryController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<CategoryResponse> create(@Valid @RequestBody CategoryRequest request){
 
             return ApiResponse.<CategoryResponse>builder()
@@ -46,43 +47,32 @@ public class CategoryController {
 
     @GetMapping("/{id}")
     public ApiResponse<CategoryResponse> findById(@PathVariable long id){
-        try {
-            return ApiResponse.<CategoryResponse>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(categoryService.findById(id))
-                    .build();
-        }catch (Exception e){
-            return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-        }
+        return ApiResponse.<CategoryResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(categoryService.findById(id))
+                .build();
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<CategoryResponse> update(@PathVariable long id, @Valid @RequestBody CategoryRequest request, BindingResult result){
-        if(result.hasErrors()){
-            List<String> errorMessages = result.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
-        }
-            return ApiResponse.<CategoryResponse>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(categoryService.update(id, request))
-                    .build();
+    public ApiResponse<CategoryResponse> update(@PathVariable long id, @Valid @RequestBody CategoryRequest request){
+
+        return ApiResponse.<CategoryResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(categoryService.update(id, request))
+                .build();
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiResponse<Void> delete( @PathVariable long id){
-        try {
-            categoryService.delete(id);
-            return ApiResponse.<Void>builder()
-                    .code(HttpStatus.NO_CONTENT.value())
-                    .message("Category is deleted successfully!")
-                    .build();
-        }catch (Exception e){
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
+
+        categoryService.delete(id);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.NO_CONTENT.value())
+                .message("Category is deleted successfully!")
+                .build();
     }
 }
 

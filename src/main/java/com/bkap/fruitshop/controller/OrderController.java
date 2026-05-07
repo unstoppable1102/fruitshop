@@ -22,58 +22,42 @@ public class OrderController {
 
     @GetMapping
     public ApiResponse<List<OrderResponse>> getUserOrders(@RequestParam long userId) {
-        try {
-            return ApiResponse.<List<OrderResponse>>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(orderService.getOrdersByUserId(userId))
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
+
+        return ApiResponse.<List<OrderResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(orderService.getOrdersByUserId(userId))
+                .build();
     }
 
     @PostMapping
-    public ApiResponse<OrderResponse> createUserOrder(@Valid @RequestBody OrderRequest request, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
-        }
-            return ApiResponse.<OrderResponse>builder()
-                    .code(HttpStatus.CREATED.value())
-                    .message(HttpStatus.CREATED.getReasonPhrase())
-                    .result(orderService.createOrder(request))
-                    .build();
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<OrderResponse> createUserOrder(@Valid @RequestBody OrderRequest request) {
 
+        return ApiResponse.<OrderResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message(HttpStatus.CREATED.getReasonPhrase())
+                .result(orderService.createOrder(request))
+                .build();
     }
 
     @GetMapping("/{orderId}")
     public ApiResponse<OrderResponse> getOrderById(@PathVariable long orderId) {
-        try {
-            return ApiResponse.<OrderResponse>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(orderService.getOrderById(orderId))
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
+
+        return ApiResponse.<OrderResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(orderService.getOrderById(orderId))
+                .build();
     }
 
     @PatchMapping("/{orderId}/status")
-    public ApiResponse<OrderResponse> updateOrderStatus(@Valid @PathVariable long orderId, @RequestParam String status, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
-        }
-            return ApiResponse.<OrderResponse>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(orderService.updateOrderStatus(orderId, status))
-                    .build();
+    public ApiResponse<OrderResponse> updateOrderStatus(@PathVariable long orderId, @RequestParam String status) {
+
+        return ApiResponse.<OrderResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(orderService.updateOrderStatus(orderId, status))
+                .build();
     }
 }

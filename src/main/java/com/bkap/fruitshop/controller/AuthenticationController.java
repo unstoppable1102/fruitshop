@@ -32,66 +32,54 @@ public class AuthenticationController {
     private final UserService userService;
 
     @PostMapping("/login")
-    ApiResponse<AuthenticationResponse> login (@Valid @RequestBody LoginRequest request, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
-        }
-            var result = authenticationService.authenticate(request);
-            return ApiResponse.<AuthenticationResponse>builder()
-                    .result(result)
-                    .build();
+    ApiResponse<AuthenticationResponse> login (@Valid @RequestBody LoginRequest request) {
+
+        return ApiResponse.<AuthenticationResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(authenticationService.authenticate(request))
+                .build();
 
     }
 
     @PostMapping("/register")
-    public ApiResponse<UserResponse> register(@Valid @RequestBody UserRequest request, BindingResult result) {
+    public ApiResponse<UserResponse> register(@Valid @RequestBody UserRequest request) {
 
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
-        }
-            return ApiResponse.<UserResponse>builder()
-                    .code(HttpStatus.CREATED.value())
-                    .message(HttpStatus.CREATED.getReasonPhrase())
-                    .result(userService.save(request))
-                    .build();
+        return ApiResponse.<UserResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message(HttpStatus.CREATED.getReasonPhrase())
+                .result(userService.save(request))
+                .build();
     }
 
     @PostMapping("/introspect")
-    ApiResponse<IntrospectResponse> introspect(@Valid @RequestBody IntrospectRequest request, BindingResult result) throws ParseException, JOSEException {
-        if (result.hasErrors()) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
-        }
-        var results = authenticationService.introspect(request);
+    ApiResponse<IntrospectResponse> introspect(@Valid @RequestBody IntrospectRequest request) throws ParseException, JOSEException {
+
         return ApiResponse.<IntrospectResponse>builder()
-                .result(results)
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(authenticationService.introspect(request))
                 .build();
     }
 
     @PostMapping("/logout")
-    ApiResponse<Void> logout(@Valid @RequestBody LogoutRequest request, BindingResult result) throws JOSEException, ParseException {
-        if (result.hasErrors()) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
-        }
+    ApiResponse<Void> logout(@Valid @RequestBody LogoutRequest request) throws JOSEException, ParseException {
+
         authenticationService.logout(request);
         return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Logout successfully")
                 .build();
     }
 
     @PostMapping("/refresh")
-    ApiResponse<AuthenticationResponse> refresh (@Valid @RequestBody RefreshRequest request, BindingResult result) throws ParseException, JOSEException {
-        if (result.hasErrors()) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), result.getFieldError().getDefaultMessage());
-        }
-        var results = authenticationService.refreshToken(request);
-            return ApiResponse.<AuthenticationResponse>builder()
-                    .result(results)
-                    .build();
+    ApiResponse<AuthenticationResponse> refresh (@Valid @RequestBody RefreshRequest request) throws ParseException, JOSEException {
+
+        return ApiResponse.<AuthenticationResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(authenticationService.refreshToken(request))
+                .build();
     }
 
 }

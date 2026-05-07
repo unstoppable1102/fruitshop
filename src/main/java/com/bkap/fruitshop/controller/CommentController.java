@@ -31,13 +31,9 @@ public class CommentController {
     }
 
     @PostMapping
-    public ApiResponse<CommentResponse> createComment(@Valid @RequestBody CommentRequest request, BindingResult result){
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<CommentResponse> createComment(@Valid @RequestBody CommentRequest request){
+
         return ApiResponse.<CommentResponse>builder()
                 .code(HttpStatus.CREATED.value())
                 .message(HttpStatus.CREATED.getReasonPhrase())
@@ -47,64 +43,49 @@ public class CommentController {
 
     @GetMapping("/{id}")
     public ApiResponse<CommentResponse> getCommentById(@PathVariable Long id){
-        try {
-            return ApiResponse.<CommentResponse>builder()
-                    .code(HttpStatus.CREATED.value())
-                    .message(HttpStatus.CREATED.getReasonPhrase())
-                    .result(commentService.findCommentById(id))
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
+
+        return ApiResponse.<CommentResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message(HttpStatus.CREATED.getReasonPhrase())
+                .result(commentService.findCommentById(id))
+                .build();
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<CommentResponse> updateComment(@Valid @PathVariable long id, @RequestBody CommentRequest request, BindingResult result){
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
-        }
-            return ApiResponse.<CommentResponse>builder()
-                    .code(HttpStatus.CREATED.value())
-                    .message(HttpStatus.CREATED.getReasonPhrase())
-                    .result(commentService.update(id, request))
-                    .build();
+    public ApiResponse<CommentResponse> updateComment(@Valid @PathVariable long id, @RequestBody CommentRequest request){
+
+        return ApiResponse.<CommentResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message(HttpStatus.CREATED.getReasonPhrase())
+                .result(commentService.update(id, request))
+                .build();
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiResponse<CommentResponse> deleteCommentById(@PathVariable Long id){
+
         commentService.delete(id);
-        try {
-            return ApiResponse.<CommentResponse>builder()
-                    .code(HttpStatus.NO_CONTENT.value())
-                    .message("Comment is deleted successfully!")
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
+        return ApiResponse.<CommentResponse>builder()
+                .code(HttpStatus.NO_CONTENT.value())
+                .message("Comment is deleted successfully!")
+                .build();
     }
 
     @GetMapping("/posts/{postId}")
-    public ApiResponse<List<CommentResponse>> getAllCommentsByUserIdAndPostId(
+    public ApiResponse<List<CommentResponse>> getCommentsByUserIdAndPostId(
             @PathVariable long postId,
             @RequestParam(required = false) Long userId) {
-        List<CommentResponse> comments;
-        if(userId != null) {
-            comments = commentService.findAllCommentsByUserIdAndPostId(userId, postId);
-        }else {
-            comments = commentService.findAllCommentsByPostId(postId);
-        }
-        try {
-            return ApiResponse.<List<CommentResponse>>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(comments)
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        }
+        List<CommentResponse> comments = (userId != null)
+        ? commentService.findAllCommentsByUserIdAndPostId(userId, postId)
+        : commentService.findAllCommentsByPostId(postId);
+
+        return ApiResponse.<List<CommentResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(comments)
+                .build();
+
     }
 
     @GetMapping("/posts/{postId}/count")
@@ -119,11 +100,11 @@ public class CommentController {
     @PatchMapping("/{commentId}/approve")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<CommentResponse> approveComment(@PathVariable Long commentId, @RequestParam boolean isApproved) {
-        CommentResponse commentResponse = commentService.approveComment(commentId, isApproved);
+
         return ApiResponse.<CommentResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(commentResponse)
+                .result(commentService.approveComment(commentId, isApproved))
                 .build();
     }
 }

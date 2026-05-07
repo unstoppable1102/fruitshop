@@ -25,18 +25,14 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ApiResponse<ProductResponse> createProduct(@Valid @ModelAttribute ProductRequest request, BindingResult result){
-        if(result.hasErrors()){
-            List<String> errorMessages = result.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
-        }
-            return ApiResponse.<ProductResponse>builder()
-                    .code(HttpStatus.CREATED.value())
-                    .message(HttpStatus.CREATED.getReasonPhrase())
-                    .result(productService.createProduct(request))
-                    .build();
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<ProductResponse> createProduct(@Valid @ModelAttribute ProductRequest request){
+
+        return ApiResponse.<ProductResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message(HttpStatus.CREATED.getReasonPhrase())
+                .result(productService.createProduct(request))
+                .build();
     }
 
     @GetMapping
@@ -53,11 +49,11 @@ public class ProductController {
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        PageResponse<ProductResponse> pageResponse = productService.getAllProducts(keyword, minPrice, maxPrice, pageable);
+
         return ApiResponse.<PageResponse<ProductResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(pageResponse)
+                .result(productService.getAllProducts(keyword, minPrice, maxPrice, pageable))
                 .build();
     }
 
@@ -69,29 +65,29 @@ public class ProductController {
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection,
-            @PageableDefault(size = 3) Pageable pageable){
+            @RequestParam(defaultValue = "3") int size,
+            @RequestParam(defaultValue = "0") int page){
 
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
-        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        Sort sort = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         return ApiResponse.<PageResponse<ProductResponse>>builder()
                 .code(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
-                .result(productService.getProductsByCategory(categoryId, keyword, minPrice, maxPrice, sortedPageable))
+                .result(productService.getProductsByCategory(categoryId, keyword, minPrice, maxPrice, pageable))
                 .build();
     }
 
     @GetMapping("/{id}")
     public ApiResponse<ProductResponse> getProductById(@PathVariable long id){
-        try {
-            return ApiResponse.<ProductResponse>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(productService.getProductById(id))
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-        }
+
+        return ApiResponse.<ProductResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(productService.getProductById(id))
+                .build();
     }
 
     @GetMapping("/latest-products")
@@ -115,32 +111,25 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<ProductResponse> updateProduct(@PathVariable long id, @Valid @ModelAttribute ProductRequest request, BindingResult result){
-        if(result.hasErrors()){
-            List<String> errorMessages = result.getFieldErrors().stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ApiResponse.errorResponse(HttpStatus.BAD_REQUEST.value(), String.valueOf(errorMessages));
-        }
-            return ApiResponse.<ProductResponse>builder()
-                    .code(HttpStatus.OK.value())
-                    .message(HttpStatus.OK.getReasonPhrase())
-                    .result(productService.updateProduct(id, request))
-                    .build();
+    public ApiResponse<ProductResponse> updateProduct(
+            @PathVariable long id,
+            @Valid @ModelAttribute ProductRequest request){
 
+        return ApiResponse.<ProductResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .result(productService.updateProduct(id, request))
+                .build();
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ApiResponse<Void> deleteProduct( @PathVariable long id){
-        try {
-            productService.deleteProduct(id);
-            return ApiResponse.<Void>builder()
-                    .code(HttpStatus.NO_CONTENT.value())
-                    .message("Product is deleted successfully!")
-                    .build();
-        } catch (Exception e) {
-            return ApiResponse.errorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
-        }
 
+        productService.deleteProduct(id);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.NO_CONTENT.value())
+                .message("Product is deleted successfully!")
+                .build();
     }
 }

@@ -10,12 +10,8 @@ import com.bkap.fruitshop.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.bkap.fruitshop.common.util.MessageUtils.getMessage;
 
 @Service
 @RequiredArgsConstructor
@@ -36,14 +32,11 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> categoryList = categoryRepository.findAll();
         return categoryList.stream()
                 .map((element) -> modelMapper.map(element, CategoryResponse.class))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public CategoryResponse save(CategoryRequest request) {
-        if (request.getName() == null || request.getName().isEmpty()) {
-            throw new AppException(ErrorCode.INVALID_REQUEST);
-        }
 
         String normalizedName = request.getName().trim().toLowerCase();
         if (categoryRepository.existsByNameIgnoreCase(normalizedName)) {
